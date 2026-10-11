@@ -10,6 +10,7 @@ import { gear } from '../../data/game';
 import { base } from '../../data/site';
 import dayCard from '../../assets/cards/day-02.png';
 import foodCard from '../../assets/cards/food-provision1-01.png';
+import baseCamp from '../../assets/cards/base-camp.png';
 import ticketCard from '../../assets/cards/ticket-helicopter-lift.png';
 
 // A Standard mountain for four: 5 green, 4 teal and 3 blue frames, the Summit on the blue.
@@ -33,7 +34,7 @@ const bags = [
 ];
 const decks = [
   { src: dayCard, name: 'Day', note: '40 cards' },
-  { src: foodCard, name: 'Food', note: '49 cards' },
+  { src: foodCard, name: 'Food', note: '50 cards' },
   { src: ticketCard, name: 'Golden Tickets', note: '10 cards' },
 ];
 ---
@@ -86,9 +87,9 @@ const decks = [
   <div class="area">
     <span class="marker">6</span>
     <strong>Your area</strong>
-    <span class="cards"><Energy card /><Energy card /><Energy card /><Energy card /></span>
+    <Image class="base-camp" src={baseCamp} alt="Base Camp card: +4 Energy at the start of each turn" widths={[120, 240]} sizes="3rem" />
     <Climber />
-    <small>4 Energy cards and your climber on your START tile. No gear yet: you buy it in play.</small>
+    <small>Your Base Camp card (<Energy n="+4" /> every turn) and your climber on your START tile. No gear yet: you buy it in play.</small>
   </div>
 </figure>
 
@@ -121,6 +122,6 @@ const decks = [
     border: 1.5px solid #c8372d; border-radius: var(--r-m);
     background: rgb(200 55 45 / 0.04);
   }
-  .area .cards { display: inline-flex; gap: var(--s-3xs); }
+  .area :global(.base-camp) { width: 3rem; height: auto; border-radius: 0.15rem; box-shadow: 0 1px 4px rgb(34 48 60 / 0.3); }
   .area small { font-size: var(--step--1); color: var(--ink-soft); flex: 1 1 14rem; }
 </style>

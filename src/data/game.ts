@@ -146,10 +146,10 @@ export const components = [
   ['Frame hexagons', '14', '5 green, 4 teal, 3 blue, 2 white; 7 tiles each'],
   ['Summit and START tiles', '3 + 4', 'One Summit per mountain length; START tiles in four player colours'],
   ['Draw bags', '4', 'Colour-matched to the frames'],
-  ['Food cards', '49', '18 provisions, 31 rations'],
+  ['Food cards', '50', '18 provisions, 32 rations'],
   ['Day cards', '40', 'Weather and events'],
   ['Golden Tickets', '10', 'One of each'],
-  ['Energy cards', '16', '4 per player'],
+  ['Base Camp cards', '4', 'One per player: +4 Energy every turn'],
   ['Equipment pieces, 3D printed', '8 × 4', 'Boots, Crampons, Rope, Axe, Tent, Boat, Helmet, Camera; one of each per player'],
   ['Climbers, markers, dice', '4 + 10 + 2', ''],
 ];

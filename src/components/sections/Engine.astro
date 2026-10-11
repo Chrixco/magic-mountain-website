@@ -2,15 +2,15 @@
 // The energy engine: why food matters, the energy budget chart, and four Food cards.
 import { Image } from 'astro:assets';
 import EnergyChart from '../EnergyChart.astro';
+import baseCamp from '../../assets/cards/base-camp.png';
 import prov1 from '../../assets/cards/food-provision1-01.png';
 import prov3 from '../../assets/cards/food-provision3-01.png';
-import ration3 from '../../assets/cards/food-ration3-01.png';
 import ration5 from '../../assets/cards/food-ration5-01.png';
 
 const foodCards = [
+  { src: baseCamp, alt: 'Base Camp card: +4 Energy at the start of each turn. Every climber starts with one.' },
   { src: prov1, alt: 'Food card, provision: a backpack of bananas. +1 Energy at the start of each turn.' },
   { src: prov3, alt: 'Food card, provision: a backpack with chocolate. +3 Energy at the start of each turn.' },
-  { src: ration3, alt: 'Food card, ration: an apple. +3 Energy this turn.' },
   { src: ration5, alt: 'Food card, ration: a bowl of trail mix. +5 Energy this turn.' },
 ];
 ---
@@ -19,9 +19,9 @@ const foodCards = [
     <div class="stack">
       <h2>First you build an engine, then you climb</h2>
       <p>
-        Everyone starts with the same four Energy and nothing else: no boots, no rope, no tent. The only way to
-        grow is food. Rations give a burst this turn; provisions stay in front of you and pay out every turn for
-        the rest of the game.
+        Everyone starts with a Base Camp worth 4 Energy every turn, and nothing else: no boots, no rope, no tent.
+        The only way to grow is food. Rations give a burst this turn; provisions stay in front of you and pay out
+        every turn for the rest of the game, up to three at a time.
       </p>
       <p>
         A climber living on four energy takes one step at Elevation 1. With three provisions in play, they can

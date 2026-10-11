@@ -5,6 +5,7 @@ import { Image } from 'astro:assets';
 import Energy from './Energy.astro';
 import Climber from './Climber.astro';
 import dayCard from '../../assets/cards/day-12.png';
+import baseCamp from '../../assets/cards/base-camp.png';
 import prov1 from '../../assets/cards/food-provision1-01.png';
 import prov2 from '../../assets/cards/food-provision2-01.png';
 
@@ -34,9 +35,9 @@ const players = [
 
   <ol class="turn" aria-label="Your turn">
     <li>
-      <p class="step"><span class="marker">2</span> Refresh</p>
+      <p class="step"><span class="marker">2</span> Collect energy</p>
       <p class="sum">
-        <span class="cards"><Energy card /><Energy card /><Energy card /><Energy card /></span>
+        <Image class="base-camp" src={baseCamp} alt="Base Camp +4" widths={[120, 240]} sizes="2.618rem" />
         <span class="plus">+</span>
         <span class="provisions">
           <Image src={prov1} alt="Provision +1" widths={[120]} sizes="2rem" />
@@ -44,7 +45,7 @@ const players = [
         </span>
       </p>
       <p class="total">4 + 1 + 2 = <Energy n={7} /></p>
-      <small>Energy is never saved or traded.</small>
+      <small>Base Camp 4, provisions 1 + 2. Energy is never saved or traded.</small>
     </li>
     <li class="act">
       <p class="step"><span class="marker">3</span> Act, in any order</p>
@@ -59,8 +60,7 @@ const players = [
     </li>
     <li>
       <p class="step"><span class="marker">4</span> End of turn</p>
-      <p class="sum"><span class="cards spent"><Energy card /><Energy card /><Energy card /><Energy card /></span></p>
-      <small>Spent cards are recycled. Unused energy is lost. Play passes to the left.</small>
+      <small>Unused energy is lost: it can't be saved for the next turn. Play passes to the left.</small>
       <p class="goal">Reach the Summit and the game ends at once.</p>
     </li>
   </ol>
@@ -99,8 +99,7 @@ const players = [
   .step { display: flex; align-items: center; gap: var(--s-2xs); font-weight: 700; color: var(--forest); }
   .step .marker { background: var(--forest); }
   .sum { display: flex; align-items: center; flex-wrap: wrap; gap: var(--s-2xs); }
-  .cards { display: inline-flex; gap: 0.2rem; }
-  .cards.spent { opacity: 0.45; rotate: -4deg; }
+  .sum :global(.base-camp) { width: 2.618rem; height: auto; border-radius: 0.15rem; box-shadow: 0 1px 3px rgb(34 48 60 / 0.3); }
   .plus { font-weight: 700; color: var(--ink-soft); }
   .provisions { display: inline-flex; gap: 0.2rem; }
   .provisions :global(img) { width: 2rem; height: auto; border-radius: 0.15rem; box-shadow: 0 1px 3px rgb(34 48 60 / 0.3); }
