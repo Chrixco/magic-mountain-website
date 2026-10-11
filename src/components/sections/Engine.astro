@@ -1,0 +1,61 @@
+---
+// The energy engine: why food matters, the energy budget chart, and four Food cards.
+import { Image } from 'astro:assets';
+import EnergyChart from '../EnergyChart.astro';
+import prov1 from '../../assets/cards/food-provision1-01.png';
+import prov3 from '../../assets/cards/food-provision3-01.png';
+import ration3 from '../../assets/cards/food-ration3-01.png';
+import ration5 from '../../assets/cards/food-ration5-01.png';
+
+const foodCards = [
+  { src: prov1, alt: 'Food card, provision: a backpack of bananas. +1 Energy at the start of each turn.' },
+  { src: prov3, alt: 'Food card, provision: a backpack with chocolate. +3 Energy at the start of each turn.' },
+  { src: ration3, alt: 'Food card, ration: an apple. +3 Energy this turn.' },
+  { src: ration5, alt: 'Food card, ration: a bowl of trail mix. +5 Energy this turn.' },
+];
+---
+<section class="section engine">
+  <div class="wrap golden">
+    <div class="stack">
+      <h2>First you build an engine, then you climb</h2>
+      <p>
+        Everyone starts with the same four Energy and nothing else: no boots, no rope, no tent. The only way to
+        grow is food. Rations give a burst this turn; provisions stay in front of you and pay out every turn for
+        the rest of the game.
+      </p>
+      <p>
+        A climber living on four energy takes one step at Elevation 1. With three provisions in play, they can
+        reach ten or more, enough for two steps at Elevation 3 or one on the ice.
+      </p>
+    </div>
+
+    <div class="side">
+      <div class="chart glass">
+        <EnergyChart />
+      </div>
+      <div class="food">
+        {foodCards.map((card) => (
+          <div class="food-card" data-tilt="card" data-zoom>
+            <Image src={card.src} alt={card.alt} widths={[240, 360, 750]} sizes="10rem" />
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .engine { background: linear-gradient(to bottom, transparent, rgb(230 239 224 / 0.55) 61.8%, transparent); }
+  .side { display: grid; gap: var(--s-l); }
+  .chart { padding: var(--s-m); border-radius: var(--r-l); }
+
+  .food { display: flex; justify-content: center; gap: var(--s-m); }
+  .food-card { width: 21%; border-radius: var(--r-s); box-shadow: var(--shadow); }
+  .food-card :global(img) { display: block; width: 100%; height: auto; }
+  .food-card:nth-child(odd) { rotate: -2deg; }
+  .food-card:nth-child(even) { rotate: 2deg; translate: 0 0.382rem; }
+  @media (max-width: 40rem) {
+    .food { gap: var(--s-xs); }
+    .food-card { width: 23.6%; }
+  }
+</style>

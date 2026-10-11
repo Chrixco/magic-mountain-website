@@ -1,0 +1,73 @@
+---
+// For publishers: the pitch, the contact, and what is in the box.
+import { components } from '../../data/game';
+import { links } from '../../data/site';
+
+const pitch = [
+  ['Table presence.', 'Snow, rock, water and lava are sculpted in relief. Prototyped in 3D print, designed for injection moulding.'],
+  ['Self-explaining components.', 'Colour-coded, numbered frames and gear icons on every tile. New players read the mountain instead of the rulebook.'],
+  ['A readable economy.', 'Energy never accumulates, which gives every game a clear arc: build income, then climb.'],
+  ['A different board every game.', 'The frames go down in any shape, with no connection rules, and the tiles are drawn blind. No two expeditions climb the same mountain.'],
+  ['Scalable.', 'One set of frames plays as a 30-minute family climb or a full expedition.'],
+  ['Room to grow.', 'New terrain sets, Day cards and themed mountains plug into the same frame system.'],
+];
+---
+<section class="section publishers" id="publishers">
+  <div class="wrap golden">
+    <div class="stack-m">
+      <h2>For publishers</h2>
+      <p class="lede">A family-weight expedition game with a physical board that grows on the table.</p>
+      <ul class="pitch">
+        {pitch.map(([title, text]) => <li><strong>{title}</strong> {text}</li>)}
+      </ul>
+      <div class="actions">
+        <a class="button" href={links.emailDesigner}>Email the designer</a>
+        <a class="button ghost" href={links.rulebook} download>Download the rulebook (PDF)</a>
+      </div>
+    </div>
+
+    <div class="box">
+      <h3>In the box</h3>
+      <table>
+        <tbody>
+          {components.map(([name, qty, note]) => (
+            <tr>
+              <th scope="row">{name}{note && <span>{note}</span>}</th>
+              <td>{qty}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<style>
+  /* A dark section: the one place the page changes key, so publishers find their part */
+  .publishers { background: var(--ink); color: #e9eff3; padding-block: var(--s-2xl); }
+  h2, h3, .lede { color: #fff; }
+
+  .pitch { list-style: none; padding: 0; display: grid; gap: var(--s-s); max-width: var(--measure); }
+  .pitch li { position: relative; padding-left: var(--s-m); color: #c9d5dd; }
+  .pitch li::before {
+    content: ''; position: absolute; left: 0; top: 0.55em;
+    width: 0.618em; aspect-ratio: 1.1547;
+    background: var(--gold);
+    clip-path: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%);
+  }
+  .pitch strong { color: #fff; }
+
+  .button { background: var(--gold); border-color: var(--gold); color: #1d1a14; }
+  .button:hover { background: #dc9a42; border-color: #dc9a42; }
+  .button.ghost { background: transparent; color: #fff; border-color: rgb(255 255 255 / 0.5); }
+  .button.ghost:hover { background: rgb(255 255 255 / 0.08); border-color: #fff; }
+  .publishers :focus-visible { outline-color: var(--gold); }
+
+  .box { padding: var(--s-m); border-radius: var(--r-l); background: rgb(255 255 255 / 0.05); border: 1px solid rgb(255 255 255 / 0.12); }
+  table { width: 100%; border-collapse: collapse; margin-top: var(--s-s); font-size: var(--step--1); }
+  th, td { text-align: left; padding: var(--s-2xs) 0; border-bottom: 1px solid rgb(255 255 255 / 0.1); vertical-align: top; }
+  th { font-weight: 600; color: #fff; }
+  th span { display: block; font-weight: 400; color: #9fb0bc; }
+  td { text-align: right; font-variant-numeric: tabular-nums; color: var(--gold-soft); white-space: nowrap; padding-left: var(--s-s); }
+  tr:last-child th, tr:last-child td { border-bottom: 0; }
+</style>

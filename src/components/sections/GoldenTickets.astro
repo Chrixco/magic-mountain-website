@@ -1,0 +1,40 @@
+---
+// Golden Tickets: three holo cards and the names of the other seven.
+import HoloCards from '../HoloCards.astro';
+import { goldenTickets } from '../../data/game';
+import { links } from '../../data/site';
+
+const shown = ['Helicopter Lift', 'Master Negotiator', 'Summit Permit'];
+const others = goldenTickets.filter((t) => !shown.includes(t.name)).map((t) => t.name).join(', ');
+---
+<section class="section tickets">
+  <div class="wrap golden">
+    <div class="stack">
+      <h2>Golden Tickets wait at the viewpoints</h2>
+      <p>
+        Ten tiles carry a camera icon. End your move on one with the Camera, pay one energy, and you’re the first
+        to photograph it: draw a Golden Ticket. Arrive later and the view still pays three energy, so a detour is
+        always worth it.
+      </p>
+      <p>
+        Tickets are also insurance. Lava may be placed anywhere, even beside the Summit, and if it closes every
+        route the climber holding the most Golden Tickets wins.
+      </p>
+    </div>
+    <div>
+      <HoloCards />
+      <p class="more">
+        <strong>Seven more in the deck:</strong> {others}. One copy of each, and only the first photographer of a
+        viewpoint draws one.
+      </p>
+      <p class="link"><a href={links.rulebook} download>Read all ten tickets in the rulebook (PDF)</a></p>
+    </div>
+  </div>
+</section>
+
+<style>
+  .tickets { background: linear-gradient(to bottom, transparent, rgb(246 236 219 / 0.6) 50%, transparent); }
+  .more { font-size: var(--step--1); color: var(--ink-soft); max-width: none; }
+  .more strong { color: var(--ink); }
+  .link { margin-top: var(--s-xs); font-size: var(--step--1); font-weight: 600; }
+</style>

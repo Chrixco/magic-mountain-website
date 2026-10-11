@@ -1,0 +1,94 @@
+---
+// Three Golden Tickets with a holographic foil: the card tilts toward the pointer, a rainbow foil and a glare
+// follow it. At rest the foil stays faintly visible; with reduced motion the cards don't tilt.
+import { Image } from 'astro:assets';
+import heli from '../assets/cards/ticket-helicopter-lift.png';
+import negotiator from '../assets/cards/ticket-master-negotiator.png';
+import permit from '../assets/cards/ticket-summit-permit.png';
+
+const cards = [
+  { src: heli, alt: 'Golden Ticket, Helicopter Lift, single use: immediately move your climber to any tile of Elevation 2 or lower, ignoring movement costs and equipment requirements.' },
+  { src: negotiator, alt: 'Golden Ticket, Master Negotiator, single use: force one trade, exchanging one of your equipment or food cards for any one card another player owns. They cannot refuse.' },
+  { src: permit, alt: 'Golden Ticket, Summit Permit, permanent: your final step onto the Summit requires one less equipment item of your choice; you still need the Ice Axe and Rope.' },
+];
+---
+<ul class="holo-cards" data-holo-cards>
+  {cards.map((c) => (
+    <li>
+      <div class="holo" tabindex="0" data-tilt="holo" data-zoom>
+        <Image src={c.src} alt={c.alt} widths={[300, 450, 750]} sizes="(min-width: 56rem) 14rem, 30vw" />
+        <span class="foil" aria-hidden="true"></span>
+        <span class="glare" aria-hidden="true"></span>
+      </div>
+    </li>
+  ))}
+</ul>
+
+<style>
+  .holo-cards {
+    list-style: none; padding: var(--s-m) 0 var(--s-l);
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: var(--s-s);
+    perspective: 1200px;
+  }
+  .holo-cards li { transition: transform var(--t-slow) var(--ease); }
+  .holo-cards li:nth-child(1) { transform: rotate(-4deg) translateY(0.618rem); }
+  .holo-cards li:nth-child(3) { transform: rotate(4deg) translateY(0.618rem); }
+  .holo-cards li:hover, .holo-cards li:focus-within { transform: translateY(-0.618rem); z-index: 1; }
+
+  .holo {
+    --mx: 50%; --my: 50%; --rx: 0deg; --ry: 0deg; --on: 0;
+    position: relative;
+    border-radius: 4.5% / 3.2%;
+    overflow: hidden;
+    transform: rotateX(var(--rx)) rotateY(var(--ry));
+    transform-style: preserve-3d;
+    transition: transform var(--t-slow) var(--ease), box-shadow var(--t-slow) var(--ease);
+    box-shadow:
+      0 0.382rem 1rem -0.382rem rgb(107 69 18 / 0.35),
+      0 1.618rem 2.618rem -1.618rem rgb(107 69 18 / 0.45);
+    outline-offset: 4px;
+    cursor: var(--cursor-zoom-in);
+  }
+  .holo:global(.zoom-copy) { cursor: grab; width: 100%; height: 100%; transform: none; }
+  .holo.tilting { transition: transform 80ms linear, box-shadow var(--t-slow) var(--ease); }
+  .holo:hover, .holo:focus-visible { box-shadow: 0 0.618rem 1.618rem -0.382rem rgb(107 69 18 / 0.45), 0 2.618rem 4.236rem -1.618rem rgb(107 69 18 / 0.55); }
+  .holo :global(img) { display: block; width: 100%; height: auto; }
+
+  /* Rainbow foil: diagonal bands of colour that slide with the pointer, dodged into the gold. */
+  .foil {
+    position: absolute; inset: 0; pointer-events: none;
+    background:
+      repeating-linear-gradient(
+        115deg,
+        hsl(2 90% 72%) 0%, hsl(45 95% 70%) 4%, hsl(110 80% 70%) 8%,
+        hsl(185 90% 70%) 12%, hsl(250 85% 75%) 16%, hsl(310 85% 74%) 20%, hsl(2 90% 72%) 24%
+      ),
+      repeating-radial-gradient(circle at var(--mx) var(--my), rgb(255 255 255 / 0.5) 0 1px, transparent 1px 7px);
+    background-size: 260% 260%, auto;
+    background-position: var(--mx) var(--my), 0 0;
+    mix-blend-mode: color-dodge;
+    opacity: calc(0.14 + var(--on) * 0.3);
+    /* the foil lives on the gold frame; the parchment with the rules text only catches a hint of it */
+    -webkit-mask-image: radial-gradient(ellipse 34% 27% at 50% 42%, rgb(0 0 0 / 0.12) 61.8%, #000 100%);
+    mask-image: radial-gradient(ellipse 34% 27% at 50% 42%, rgb(0 0 0 / 0.12) 61.8%, #000 100%);
+    filter: saturate(1.2) contrast(1.1);
+    transition: opacity var(--t-slow) var(--ease);
+  }
+  /* Glare: a soft light that sits where the pointer is. */
+  .glare {
+    position: absolute; inset: 0; pointer-events: none;
+    background: radial-gradient(circle at var(--mx) var(--my), rgb(255 255 255 / 0.55), rgb(255 255 255 / 0.12) 23.6%, transparent 61.8%);
+    mix-blend-mode: overlay;
+    opacity: var(--on);
+    transition: opacity var(--t-slow) var(--ease);
+  }
+
+  @media (max-width: 40rem) {
+    .holo-cards { gap: var(--s-2xs); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .holo { transform: none !important; }
+    .holo-cards li { transform: none !important; }
+  }
+</style>

@@ -1,0 +1,59 @@
+---
+// Sticky header: logo, section links, and the publishers call to action (the one link kept on phones).
+---
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a class="brand" href="#top" aria-label="Magic Mountain, back to top">
+      <svg viewBox="-24 -24 48 48" width="1.618em" height="1.618em" aria-hidden="true">
+        <polygon points="22,0 11,19.05 -11,19.05 -22,0 -11,-19.05 11,-19.05" fill="var(--forest)" />
+        <path d="M -13,9 L -3,-8 L 2,0 L 5,-5 L 13,9 Z" fill="var(--paper)" />
+      </svg>
+      <span>Magic Mountain</span>
+    </a>
+    <nav aria-label="Sections">
+      <a href="#play">Play</a>
+      <a href="#rules">How to play</a>
+      <a href="#table">Prototype</a>
+      <a class="nav-cta" href="#publishers">For publishers</a>
+    </nav>
+  </div>
+</header>
+
+<style>
+  .skip {
+    position: absolute; left: var(--s-s); top: -10rem; z-index: 20;
+    padding: var(--s-xs) var(--s-s); border-radius: var(--r-s);
+    background: var(--ink); color: #fff;
+  }
+  .skip:focus { top: var(--s-s); }
+
+  .site-header {
+    position: sticky; top: 0; z-index: 10;
+    background: rgb(253 253 251 / 0.8);
+    backdrop-filter: blur(12px) saturate(1.4);
+    border-bottom: 1px solid rgb(195 208 217 / 0.6);
+  }
+  .header-inner { display: flex; align-items: center; justify-content: space-between; gap: var(--s-m); min-height: 3.618rem; }
+  .brand {
+    display: inline-flex; align-items: center; gap: var(--s-xs);
+    font-family: var(--font-display); font-size: var(--step-1);
+    color: var(--ink); text-decoration: none; white-space: nowrap;
+  }
+
+  nav { display: flex; align-items: center; gap: var(--s-m); font-size: var(--step--1); font-weight: 600; }
+  nav a { color: var(--ink-soft); text-decoration: none; padding-block: var(--s-2xs); }
+  nav a:hover { color: var(--forest); }
+  nav .nav-cta {
+    padding: var(--s-3xs) var(--s-s); border-radius: 999px; white-space: nowrap;
+    color: #fff; background: var(--forest);
+    transition: background var(--t-fast) var(--ease);
+  }
+  nav .nav-cta:hover { color: #fff; background: var(--forest-hover); }
+
+  @media (max-width: 44rem) {
+    nav a:not(:last-child) { display: none; }
+    .brand { font-size: var(--step-0); }
+  }
+</style>

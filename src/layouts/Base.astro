@@ -1,0 +1,41 @@
+---
+import '@fontsource/young-serif/400.css';
+import '@fontsource-variable/figtree';
+import '../styles/global.css';
+
+interface Props { title: string; description: string; image?: string }
+const { title, description, image } = Astro.props;
+const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
+const canonical = Astro.site ? new URL(Astro.url.pathname, Astro.site).href : undefined;
+const ogImage = image && Astro.site ? new URL(image, Astro.site).href : image;
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    {canonical && <link rel="canonical" href={canonical} />}
+    <meta name="theme-color" content="#fdfdfb" />
+    <link rel="icon" href={`${base}favicon.svg`} type="image/svg+xml" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    {ogImage && <meta property="og:image" content={ogImage} />}
+    <meta name="twitter:card" content="summary_large_image" />
+  </head>
+  <body>
+    <canvas class="ink-bg" aria-hidden="true"></canvas>
+    <slot />
+    <script>
+      import { startInkBackground } from '../scripts/inkBackground';
+      import { initTilt } from '../scripts/tilt';
+      import { initCardZoom } from '../scripts/cardZoom';
+      initTilt();
+      initCardZoom();
+      const c = document.querySelector<HTMLCanvasElement>('.ink-bg');
+      if (c) ('requestIdleCallback' in window ? requestIdleCallback : setTimeout)(() => startInkBackground(c));
+    </script>
+  </body>
+</html>

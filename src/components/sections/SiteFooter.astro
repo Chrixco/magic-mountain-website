@@ -1,0 +1,17 @@
+---
+import { contact } from '../../data/game';
+import { links } from '../../data/site';
+---
+<footer class="site-footer">
+  <div class="wrap footer-inner">
+    <p><strong>Magic Mountain</strong> is designed, written and illustrated by {contact.designer}.</p>
+    <p><a href={links.email}>{contact.email}</a></p>
+  </div>
+</footer>
+
+<style>
+  .site-footer { background: var(--ink); color: #9fb0bc; font-size: var(--step--1); border-top: 1px solid rgb(255 255 255 / 0.1); }
+  .footer-inner { display: flex; flex-wrap: wrap; justify-content: space-between; gap: var(--s-s); padding-block: var(--s-l); }
+  strong { color: #fff; }
+  a { color: var(--gold-soft); }
+</style>

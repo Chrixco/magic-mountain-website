@@ -1,0 +1,278 @@
+---
+// How to play: the rulebook in four tabs (setup, your turn, moving, winning).
+// Source: Magic_Mountain_Rulebook (§4 Setup, §5 Playing the Game, §6 Movement, §7 Winning). Without JavaScript
+// the four parts simply show one after another.
+import Icon from '../Icon.astro';
+import SetupDiagram from '../diagrams/SetupDiagram.astro';
+import RoundDiagram from '../diagrams/RoundDiagram.astro';
+import MoveDiagram from '../diagrams/MoveDiagram.astro';
+import ViewpointDiagram from '../diagrams/ViewpointDiagram.astro';
+import SummitDiagram from '../diagrams/SummitDiagram.astro';
+import { elevations, mountains, gearName } from '../../data/game';
+import { links } from '../../data/site';
+
+const setup = [
+  ['Build the mountain.', 'Lay out the frames in any shape; there are no connection rules. Play an included layout or invent your own.'],
+  ['Place the Summit', 'in the highest frame. Each game length has its own Summit tile, with its cost and gear printed on it.'],
+  ['Place the START tiles,', 'one per player, each on a different outer frame, normally at Elevation 1.'],
+  ['Fill the four bags,', 'one per elevation, colour-matched to the frames. Everything between the START tiles and the Summit is drawn from them.'],
+  ['Shuffle the decks:', 'Food, Golden Tickets and Day cards. Lay out the equipment.'],
+  ['Take 4 Energy cards', 'and put your climber on your START tile.'],
+  ['Start with no gear.', 'Every piece is bought during the game.'],
+  ['Roll two dice;', 'the highest roll goes first. Choose Free-for-All or Teams of two.'],
+];
+
+
+const actions = [
+  ['Buy terrain', '2 Energy', 'Draw 2 tiles from any bags and place each in an empty slot of a matching-colour frame. Once per turn.'],
+  ['Buy equipment', 'Its price', 'One piece you don’t own yet. Once per turn.'],
+  ['Buy food', '2 Energy', 'Draw the top Food card, face unknown. Once per turn.'],
+  ['Move', 'By elevation', 'As far as your energy and gear allow.'],
+  ['Photograph', '1 Energy', 'On a viewpoint, with the Camera.'],
+  ['Trade', 'Free', 'Food cards with anyone; in a team game, one piece of gear with your partner. Never energy.'],
+];
+
+const moving = [
+  ['The destination sets the price.', 'Up or down, entering a tile costs the energy of its frame’s elevation.'],
+  ['Gear is checked tile by tile.', 'You need every icon on a tile at the moment you enter it. Losing gear later never moves you back.'],
+  ['Water needs the Boat.', 'On a shore the Boat comes on top of whatever the land asks for.'],
+  ['Lava can’t be entered.', 'Routes go around it.'],
+  ['Viewpoints pay off.', 'End a move on one with the Camera and pay 1 Energy: the first photographer draws a Golden Ticket, later ones gain 3 Energy.'],
+  ['Climbers never block.', 'Any number can share a tile.'],
+];
+
+const tabs = [
+  { id: 'setup', label: 'Setup' },
+  { id: 'turn', label: 'Your turn' },
+  { id: 'moving', label: 'Moving' },
+  { id: 'winning', label: 'Winning' },
+];
+---
+<section class="section" id="rules">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>How to play</h2>
+      <p class="lede">Build the mountain as you climb it, and be the first to stand on the Summit.</p>
+      <p>The whole game on one page. The rulebook has every detail.</p>
+    </div>
+
+    <div class="rules" data-rules>
+      <div class="tabs" role="tablist" aria-label="How to play" hidden>
+        {tabs.map((t, i) => (
+          <button type="button" role="tab" id={`tab-${t.id}`} aria-controls={`panel-${t.id}`} aria-selected={i === 0 ? 'true' : 'false'} tabindex={i === 0 ? 0 : -1}>
+            <span class="tab-number" aria-hidden="true">{i + 1}</span>{t.label}
+          </button>
+        ))}
+      </div>
+
+      <!-- 1. Setup -->
+      <div class="panel glass" role="tabpanel" id="panel-setup" aria-labelledby="tab-setup">
+        <h3 class="panel-title">Setup</h3>
+        <ol class="numbered">
+          {setup.map(([lead, rest]) => <li><strong>{lead}</strong> {rest}</li>)}
+        </ol>
+        <SetupDiagram />
+        <aside class="tip">
+          <strong>Your first climb</strong>
+          <p>Play the Short mountain with every START tile on a green frame. It teaches every rule in about 30 minutes.</p>
+        </aside>
+      </div>
+
+      <!-- 2. Your turn -->
+      <div class="panel glass" role="tabpanel" id="panel-turn" aria-labelledby="tab-turn">
+        <h3 class="panel-title">Your turn</h3>
+        <RoundDiagram />
+        <table class="actions-table">
+          <thead><tr><th scope="col">Action</th><th scope="col">Cost</th><th scope="col">How</th></tr></thead>
+          <tbody>
+            {actions.map(([action, cost, rule]) => <tr><th scope="row">{action}</th><td class="cost">{cost}</td><td>{rule}</td></tr>)}
+          </tbody>
+        </table>
+        <aside class="tip">
+          <strong>Example</strong>
+          <p>
+            The Day card says Elevation 1 costs 1 less. Lena takes back her 4 Energy and adds 1 from a provision: 5 to
+            spend. She buys terrain for 2, placing one tile in a green frame and one in a teal frame. With her last 3
+            she steps onto two Elevation 1 snow tiles in her boots, at 1 each, and ends her turn.
+          </p>
+        </aside>
+      </div>
+
+      <!-- 3. Moving -->
+      <div class="panel glass" role="tabpanel" id="panel-moving" aria-labelledby="tab-moving">
+        <h3 class="panel-title">Moving</h3>
+        <MoveDiagram />
+        <ul class="costs" aria-label="Energy to enter a tile">
+          {[...elevations].reverse().map((el) => (
+            <li class={`e${el.level}`}>
+              <span class="hex-badge" aria-hidden="true">{el.level}</span>
+              <span>Elevation {el.level}<small>{el.frame} frame</small></span>
+              <strong>{el.cost}</strong>
+            </li>
+          ))}
+          <li class="summit">
+            <span class="hex-badge" aria-hidden="true"><Icon name="summit" size="1.272em" /></span>
+            <span>Summit<small>Short, Standard, Expedition</small></span>
+            <strong>{mountains.map((m) => m.summit).join(' / ')}</strong>
+          </li>
+        </ul>
+        <ul class="points">
+          {moving.map(([lead, rest]) => <li><strong>{lead}</strong> {rest}</li>)}
+        </ul>
+        <ViewpointDiagram />
+      </div>
+
+      <!-- 4. Winning -->
+      <div class="panel glass" role="tabpanel" id="panel-winning" aria-labelledby="tab-winning">
+        <h3 class="panel-title">Winning</h3>
+        <div class="win">
+          <div><strong>Free-for-All</strong><p>The first climber to reach the Summit wins, the moment they arrive.</p></div>
+          <div><strong>Teams</strong><p>A team wins when both its climbers stand on the Summit. Partners may pass one piece of gear per turn.</p></div>
+        </div>
+        <SummitDiagram />
+      </div>
+    </div>
+
+    <p class="more"><a href={links.rulebook} download>Download the full rulebook (PDF)</a></p>
+  </div>
+</section>
+
+<style>
+  .rules { display: grid; gap: var(--s-s); }
+
+  /* Tabs: four numbered steps of one sequence */
+  .tabs { display: flex; flex-wrap: wrap; gap: var(--s-2xs); }
+  .tabs[hidden] { display: none; }
+  [role='tab'] {
+    display: inline-flex; align-items: center; gap: var(--s-xs);
+    min-height: 2.618rem; padding: var(--s-2xs) var(--s-m) var(--s-2xs) var(--s-2xs);
+    border: 1px solid var(--glass-edge); border-radius: 999px;
+    background: var(--glass-fill);
+    -webkit-backdrop-filter: var(--glass-blur); backdrop-filter: var(--glass-blur);
+    box-shadow: var(--glass-shadow);
+    font-weight: 600; font-size: var(--step--1);
+    cursor: pointer;
+    transition: background var(--t-fast) var(--ease), color var(--t-fast);
+  }
+  [role='tab']:hover { background: var(--glass-hover-fill); color: var(--forest); }
+  [role='tab'][aria-selected='true'] { background: var(--forest); border-color: var(--forest); color: #fff; }
+  .tab-number {
+    display: grid; place-items: center; width: 1.618rem; aspect-ratio: 1.1547;
+    clip-path: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%);
+    background: var(--forest); color: #fff; font-family: var(--font-display); font-size: var(--step--1);
+  }
+  [aria-selected='true'] .tab-number { background: #fff; color: var(--forest); }
+
+  /* With JavaScript only the chosen panel shows; without it, all four stack */
+  .rules.tabbed .panel:not(.active) { display: none; }
+  .rules.tabbed .panel-title { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .panel {
+    display: grid; gap: var(--s-m); align-content: start;
+    padding: var(--s-l);
+    border-radius: var(--r-l);
+  }
+  .panel.active { animation: panel-in var(--t-mid) var(--ease); }
+  @keyframes panel-in { from { opacity: 0; transform: translateY(0.382rem); } }
+  @media (max-width: 40rem) { .panel { padding: var(--s-m); } }
+  .panel-title { font-size: var(--step-2); }
+  .intro { color: var(--ink-soft); }
+
+  /* Setup: a real sequence, numbered in hexagons; two columns on wide screens */
+  .numbered { list-style: none; padding: 0; counter-reset: n; display: grid; gap: var(--s-s) var(--s-l); }
+  @media (min-width: 56rem) { .numbered { grid-template-columns: 1fr 1fr; grid-auto-flow: column; grid-template-rows: repeat(4, auto); } }
+  .numbered li { counter-increment: n; position: relative; padding-left: 2.618rem; }
+  .numbered li::before {
+    content: counter(n);
+    position: absolute; left: 0; top: 0.1em;
+    display: grid; place-items: center; width: 1.618rem; aspect-ratio: 1.1547;
+    clip-path: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%);
+    background: var(--forest); color: #fff; font-family: var(--font-display); font-size: var(--step--1);
+  }
+
+  table { width: 100%; border-collapse: collapse; font-size: var(--step--1); }
+  th, td { text-align: left; vertical-align: top; padding: var(--s-xs) var(--s-s) var(--s-xs) 0; border-bottom: 1px solid var(--line); }
+  thead th { color: var(--ink-soft); font-weight: 600; }
+  tbody th { font-weight: 650; white-space: nowrap; }
+  tbody tr:last-child > * { border-bottom: 0; }
+  td.cost { white-space: nowrap; font-weight: 650; color: var(--forest); font-variant-numeric: tabular-nums; }
+  @media (max-width: 40rem) {
+    .actions-table thead { display: none; }
+    .actions-table tr { display: grid; grid-template-columns: 1fr auto; padding-block: var(--s-xs); border-bottom: 1px solid var(--line); }
+    .actions-table th, .actions-table td { border: 0; padding: 0; }
+    .actions-table td:last-child { grid-column: 1 / -1; color: var(--ink-soft); }
+  }
+
+  /* Moving: the price of a step per elevation, as a short ladder */
+  .costs { list-style: none; padding: 0; display: grid; gap: var(--s-2xs); grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); }
+  .costs li {
+    display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: var(--s-xs);
+    padding: var(--s-xs) var(--s-s); border-radius: var(--r-m);
+    background: color-mix(in srgb, var(--c, var(--gold)) 10%, rgb(255 255 255 / 0.6));
+    box-shadow: inset 0.236rem 0 0 var(--c, var(--gold));
+  }
+  .costs .hex-badge { width: 1.618rem; font-size: var(--step--1); }
+  .costs .summit .hex-badge { background: var(--gold); }
+  .costs span:nth-child(2) { display: grid; line-height: 1.25; font-weight: 600; font-size: var(--step--1); }
+  .costs small { font-weight: 400; color: var(--ink-soft); }
+  .costs strong { font-family: var(--font-display); font-weight: 400; font-size: var(--step-2); line-height: 1; white-space: nowrap; }
+  .costs .summit strong { font-size: var(--step-1); }
+  .points { list-style: none; padding: 0; display: grid; gap: var(--s-xs) var(--s-l); }
+  @media (min-width: 56rem) { .points { grid-template-columns: 1fr 1fr; } }
+  .points li { padding-left: var(--s-m); position: relative; }
+  .points li::before {
+    content: ''; position: absolute; left: 0; top: 0.55em; width: 0.618em; aspect-ratio: 1.1547;
+    background: var(--e2); clip-path: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%);
+  }
+
+  /* Winning */
+  .win { display: grid; gap: var(--s-s); }
+  @media (min-width: 56rem) { .win { grid-template-columns: 1fr 1fr; } }
+  .win > div { padding: var(--s-s); border-radius: var(--r-m); background: rgb(255 255 255 / 0.5); border: 1px solid var(--line); }
+  .win strong { font-family: var(--font-display); font-weight: 400; font-size: var(--step-1); }
+  .win p { color: var(--ink-soft); }
+
+  .tip {
+    padding: var(--s-s) var(--s-m);
+    border-radius: var(--r-m);
+    background: rgb(243 227 198 / 0.55);
+    box-shadow: inset 0.236rem 0 0 var(--gold);
+  }
+  .tip strong { font-family: var(--font-display); font-weight: 400; font-size: var(--step-1); }
+  .tip p { color: var(--ink); }
+
+  .more { margin-top: var(--s-s); font-weight: 600; font-size: var(--step--1); }
+</style>
+
+<script>
+  // Accessible tabs (WAI-ARIA pattern): click or arrow keys switch panels; Home/End jump to the first/last.
+  for (const root of document.querySelectorAll<HTMLElement>('[data-rules]')) {
+    const list = root.querySelector<HTMLElement>('[role="tablist"]')!;
+    const tabs = [...root.querySelectorAll<HTMLButtonElement>('[role="tab"]')];
+    const panels = tabs.map((t) => root.querySelector<HTMLElement>(`#${t.getAttribute('aria-controls')}`)!);
+
+    const select = (i: number, focus = false) => {
+      tabs.forEach((t, k) => {
+        const on = k === i;
+        t.setAttribute('aria-selected', String(on));
+        t.tabIndex = on ? 0 : -1;
+        panels[k].classList.toggle('active', on);
+      });
+      if (focus) tabs[i].focus();
+    };
+
+    list.hidden = false;
+    root.classList.add('tabbed');
+    panels.forEach((p) => (p.tabIndex = 0));
+    select(0);
+
+    tabs.forEach((t, i) => t.addEventListener('click', () => select(i)));
+    list.addEventListener('keydown', (e) => {
+      const i = tabs.indexOf(document.activeElement as HTMLButtonElement);
+      if (i < 0) return;
+      const next = { ArrowRight: i + 1, ArrowLeft: i - 1, Home: 0, End: tabs.length - 1 }[e.key];
+      if (next === undefined) return;
+      e.preventDefault();
+      select((next + tabs.length) % tabs.length, true);
+    });
+  }
+</script>

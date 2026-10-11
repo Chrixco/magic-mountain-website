@@ -1,0 +1,425 @@
+---
+// "Build the mountain": pick a layout (or shuffle a new one), then fill the empty frames by drawing from the four bags.
+// The default layout is rendered at build time so the board reads without JavaScript; the script adds layouts and drawing.
+import { terrain, designsOf, type Elevation } from '../data/game';
+import { layouts, buildBoard, viewBox, frameMarkup, frameCounts, SUMMIT_NAME } from '../scripts/board';
+
+const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
+const first = layouts[0];
+const { slots, start } = buildBoard(first);
+const { frames, fixed } = frameMarkup(slots, 40, base);
+const counts = frameCounts(slots);
+
+// Bag contents, one entry per physical tile.
+// Each printed design (artwork + symbols) appears as often as it is printed, so the bags hold the real mix.
+const bagData = terrain.flatMap((t) =>
+  designsOf(t).flatMap((d) => Array.from({ length: d.copies }, () => ({ e: t.elevation, name: t.name, gear: t.gear, src: base + d.src, viewpoint: d.viewpoint }))),
+);
+
+const bagNames: Record<Elevation, string> = { 1: 'Green bag', 2: 'Teal bag', 3: 'Blue bag', 4: 'White bag' };
+const top = Math.max(...slots.map((s) => s.e)) as Elevation;
+---
+
+<div class="builder" data-builder data-base={base} data-bags={JSON.stringify(bagData)}>
+  <div class="picker" role="group" aria-label="Choose a mountain">
+    {layouts.map((l, i) => (
+      <button type="button" class="pick" data-layout={l.id} aria-pressed={i === 0 ? 'true' : 'false'}>{l.name}</button>
+    ))}
+    <button type="button" class="pick shuffle" data-layout="random" aria-pressed="false">
+      <svg viewBox="-24 -24 48 48" width="1.272em" height="1.272em" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M -16,-8 h 8 q 6,0 10,8 q 4,8 10,8 h 6"/><path d="M -16,8 h 8 q 6,0 10,-8 q 4,-8 10,-8 h 6"/><path d="M 13,-13 l 5,5 l -5,5"/><path d="M 13,3 l 5,5 l -5,5"/></svg>
+      Shuffle a new mountain
+    </button>
+  </div>
+
+  <div class="board">
+    <svg viewBox={viewBox(slots)} role="img" aria-labelledby="board-title" class="board-svg">
+      <title id="board-title" data-title>{first.name}: a mountain of empty frames, green at the foot and the Summit on the highest frame.</title>
+      <g class="frames" data-frames set:html={frames} />
+      <g class="tiles" data-tiles></g>
+      <g class="fixed" data-fixed set:html={fixed} />
+    </svg>
+  </div>
+
+  <div class="controls">
+    <div class="about" aria-live="polite">
+      <h3 data-name>{first.name}</h3>
+      <p data-blurb>{first.blurb}</p>
+      <p class="frames-used" data-frames-used>
+        {Object.values(counts).reduce((a, b) => a + b, 0)} of the 14 frames in the box: {counts[1]} green, {counts[2]} teal{counts[3] ? `, ${counts[3]} blue` : ''}{counts[4] ? `, ${counts[4]} white` : ''}. {SUMMIT_NAME[top]} Summit.
+      </p>
+      <p class="fair" data-fair>{start.count} START tiles, each {start.steps} steps and {start.energy} Energy from the Summit, so no seat starts closer.</p>
+    </div>
+    <div class="bags" role="group" aria-label="Draw bags">
+      {([1, 2, 3, 4] as Elevation[]).map((e) => (
+        <button type="button" class={`bag e${e}`} data-bag={e} disabled>
+          <span class="hex-badge">{e}</span>
+          <span class="bag-text">
+            <span class="bag-name">{bagNames[e]}</span>
+            <span class="bag-count" data-count={e}>35 tiles</span>
+          </span>
+        </button>
+      ))}
+    </div>
+    <div class="actions">
+      <button type="button" class="button" data-fill disabled>Fill every frame</button>
+      <button type="button" class="button ghost" data-reset disabled>Clear the frames</button>
+    </div>
+    <div class="last" data-last aria-live="polite">
+      <p class="muted">Draw a tile from a bag. It goes into an empty slot of the frame with the same colour.</p>
+    </div>
+  </div>
+</div>
+
+<style>
+  .builder {
+    display: grid;
+    gap: var(--s-m) var(--s-l);
+    align-items: start;
+  }
+  @media (min-width: 56rem) {
+    .builder { grid-template-columns: 1.618fr 1fr; }
+    .picker { grid-column: 1 / -1; }
+  }
+
+  .picker { display: flex; flex-wrap: wrap; gap: var(--s-2xs); }
+  @media (max-width: 40rem) {
+    .picker { flex-wrap: nowrap; overflow-x: auto; margin-inline: calc(-1 * var(--gutter)); padding: var(--s-3xs) var(--gutter); scrollbar-width: none; }
+    .pick { flex: none; }
+  }
+  .pick {
+    display: inline-flex; align-items: center; gap: var(--s-2xs);
+    min-height: 2.618rem;
+    padding: var(--s-2xs) var(--s-m);
+    border: 1px solid var(--glass-edge);
+    border-radius: 999px;
+    background: var(--glass-fill);
+    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: var(--glass-blur);
+    box-shadow: var(--glass-shadow);
+    font-weight: 600; font-size: var(--step--1);
+    cursor: pointer;
+    transition: background var(--t-fast) var(--ease), border-color var(--t-fast), color var(--t-fast);
+  }
+  .pick:hover { background: var(--glass-hover-fill); color: var(--forest); }
+  .pick[aria-pressed='true'] { background: linear-gradient(160deg, rgb(52 70 86 / 0.9), rgb(34 48 60 / 0.82)); border-color: rgb(255 255 255 / 0.35); color: #fff; }
+  .pick.shuffle { border: 1px dashed var(--gold); }
+  .pick.shuffle[aria-pressed='true'] { background: linear-gradient(160deg, rgb(222 160 76 / 0.92), rgb(200 132 43 / 0.85)); border: 1px solid rgb(255 255 255 / 0.6); color: #1d1a14; }
+
+  .board {
+    position: relative;
+    padding: var(--s-s);
+    display: grid;
+    place-items: center;
+    border-radius: var(--r-l);
+    border: 1px solid var(--glass-edge);
+    background: var(--glass-fill);
+    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: var(--glass-blur);
+    box-shadow: var(--glass-shadow);
+  }
+  .board-svg { width: 100%; height: auto; aspect-ratio: 1.618; overflow: visible; }
+  /* On phones the board stays in view while you draw from the bags below it */
+  @media (max-width: 55.99rem) {
+    .board { position: sticky; top: 3.618rem; z-index: 2; padding: var(--s-xs); }
+  }
+
+  .board :global(.hole) { fill: rgb(221 231 237 / 0.55); } /* the sketches show through the empty slots */
+  .board :global(.slot.e4 .hole) { fill: rgb(228 235 240 / 0.6); }
+  .board :global(.fixed-summit polygon) { fill: var(--gold); stroke: #fff; stroke-width: 3; }
+  .board :global(.summit-tile) { filter: drop-shadow(0 3px 4px rgb(107 69 18 / 0.4)); }
+  .board :global(.summit-tile .summit-ring) { fill: none; stroke: var(--gold); stroke-width: 4; }
+  .board :global(.fixed-start polygon) { fill: #fff; stroke: #2f5ea8; stroke-width: 4; }
+  .board :global(.fixed text) { font-family: var(--font-body); font-weight: 700; font-size: 12px; letter-spacing: 0.04em; }
+  .board :global(.fixed-summit text) { fill: #fff; font-size: 11px; }
+  .board :global(.fixed-start text) { fill: #2f5ea8; font-size: 13px; }
+  .board :global(.tile-img) { transform-box: fill-box; transform-origin: center; }
+
+  .controls { display: grid; gap: var(--s-m); }
+  .about h3 { font-size: var(--step-2); }
+  .about p { color: var(--ink-soft); margin-top: var(--s-3xs); }
+  .about .frames-used { font-size: var(--step--1); }
+  .about .fair { font-size: var(--step--1); color: #2f5ea8; font-weight: 600; }
+
+  .bags {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--s-xs);
+  }
+  .bag {
+    display: flex; align-items: center; gap: var(--s-xs);
+    padding: var(--s-xs);
+    border: 1px solid var(--glass-edge);
+    border-radius: var(--r-m);
+    background: var(--glass-fill);
+    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: var(--glass-blur);
+    box-shadow: var(--glass-shadow);
+    text-align: left;
+    cursor: pointer;
+    transition: border-color var(--t-fast) var(--ease), transform var(--t-fast) var(--ease), background var(--t-fast);
+  }
+  .bag.e4 { --c: var(--e4); }
+  .bag:hover:not(:disabled) { background: var(--glass-hover-fill); box-shadow: var(--glass-shadow), inset 0 0 0 1.5px color-mix(in srgb, var(--c) 55%, transparent); }
+  .bag:active:not(:disabled) { transform: translateY(1px); }
+  .bag:disabled { cursor: not-allowed; opacity: 0.618; }
+  .bag .hex-badge { width: 2.058rem; font-size: var(--step-0); flex: none; }
+  .bag.e4 .hex-badge { background: var(--e4); }
+  .bag-text { display: grid; line-height: 1.3; }
+  .bag-name { font-weight: 600; }
+  .bag-count { font-size: var(--step--1); color: var(--ink-soft); font-variant-numeric: tabular-nums; }
+  .actions { display: flex; flex-wrap: wrap; gap: var(--s-xs); }
+
+  .last {
+    min-height: 7.5rem;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: var(--s-s);
+    align-items: center;
+    padding: var(--s-s);
+    border-radius: var(--r-m);
+    border: 1px solid var(--glass-edge);
+    background: var(--glass-fill);
+    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: var(--glass-blur);
+    box-shadow: var(--glass-shadow);
+  }
+  .last > p:only-child { grid-column: 1 / -1; }
+  .last :global(img) { width: 5.5rem; filter: drop-shadow(0 4px 8px rgb(34 48 60 / 0.2)); }
+  .last :global(.last-name) { font-family: var(--font-display); font-size: var(--step-1); line-height: 1.2; }
+  .last :global(.last-meta) { font-size: var(--step--1); color: var(--ink-soft); margin-block: 0.15em 0.4em; }
+  .last :global(.warn) { color: var(--lava); font-weight: 600; }
+</style>
+
+<script>
+  import { layouts, buildBoard, neighbourIds, viewBox, frameMarkup, frameCounts, randomLayout, SUMMIT_NAME, type Elev, type Slot, type Layout } from '../scripts/board';
+  import { iconMarkup } from '../data/icons';
+
+  type Tile = { e: Elev; name: string; gear: string[] | 'lava'; src: string; viewpoint: boolean };
+
+  const COST: Record<Elev, number> = { 1: 2, 2: 2, 3: 4, 4: 8 };
+  const COLOUR: Record<Elev, string> = { 1: 'green', 2: 'teal', 3: 'blue', 4: 'white' };
+  const GEAR_NAME: Record<string, string> = { axe: 'Ice Axe', rope: 'Rope', boots: 'Snow Boots', crampons: 'Crampons', tent: 'Tent', helmet: 'Helmet', boat: 'Boat', camera: 'Camera' };
+  const S = 40, W = 2 * S, H = Math.sqrt(3) * S;
+  const EASE = 'cubic-bezier(.22,.8,.24,1)';
+  const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)');
+  const HINT = '<p class="muted">Draw a tile from a bag. It goes into an empty slot of the frame with the same colour.</p>';
+
+  for (const root of document.querySelectorAll<HTMLElement>('[data-builder]')) {
+    const all: Tile[] = JSON.parse(root.dataset.bags!);
+    const $ = <T extends Element>(sel: string) => root.querySelector<T>(sel)!;
+    const svg = $<SVGSVGElement>('.board-svg');
+    const framesLayer = $<SVGGElement>('[data-frames]');
+    const fixedLayer = $<SVGGElement>('[data-fixed]');
+    const layer = $<SVGGElement>('[data-tiles]');
+    const last = $<HTMLElement>('[data-last]');
+    const bagButtons = [...root.querySelectorAll<HTMLButtonElement>('[data-bag]')];
+    const pickButtons = [...root.querySelectorAll<HTMLButtonElement>('[data-layout]')];
+    const fillBtn = $<HTMLButtonElement>('[data-fill]');
+    const resetBtn = $<HTMLButtonElement>('[data-reset]');
+    const NS = 'http://www.w3.org/2000/svg';
+
+    let slots: Slot[] = buildBoard(layouts[0]).slots;
+    let nb: number[][] = neighbourIds(slots);
+    let toSummit: number[] = [];
+    const measure = () => {
+      const top = slots.find((s) => s.kind === 'summit')!;
+      toSummit = slots.map((s) => (Math.abs(s.q - top.q) + Math.abs(s.r - top.r) + Math.abs(s.q + s.r - top.q - top.r)) / 2);
+    };
+    measure();
+    let bags: Record<Elev, Tile[]>;
+    let filled: Map<number, SVGImageElement>;
+    let filling = false;
+    let run = 0; // cancels an unfinished "fill every frame" when the layout changes
+
+    // Preload the 33 tile images so the first draws don't flash.
+    new Set(all.map((t) => t.src)).forEach((src) => { const i = new Image(); i.src = src; });
+
+    const open = (e: Elev) => slots.filter((s) => s.kind === 'slot' && s.e === e && !filled.has(s.id));
+    const has = (e: Elev) => slots.some((s) => s.e === e);
+
+    function reset() {
+      run++;
+      filling = false;
+      bags = { 1: [], 2: [], 3: [], 4: [] };
+      all.forEach((t) => bags[t.e].push(t));
+      filled = new Map();
+      layer.replaceChildren();
+      last.innerHTML = HINT;
+      update();
+    }
+
+    function update() {
+      for (const b of bagButtons) {
+        const e = Number(b.dataset.bag) as Elev;
+        const free = open(e).length;
+        b.disabled = filling || free === 0;
+        $(`[data-count="${e}"]`).textContent = !has(e)
+          ? 'Not on this mountain'
+          : free === 0 ? 'Frames full' : `${bags[e].length} tiles, ${free} empty ${free === 1 ? 'slot' : 'slots'}`;
+      }
+      const anyOpen = ([1, 2, 3, 4] as Elev[]).some((e) => open(e).length);
+      fillBtn.disabled = filling || !anyOpen;
+      resetBtn.disabled = filling || filled.size === 0;
+    }
+
+    function showLayout(l: Layout) {
+      const board = buildBoard(l, 40, Math.random); // fair START spots, different each time
+      slots = board.slots;
+      nb = neighbourIds(slots);
+      measure();
+      $('[data-fair]').textContent = `${board.start.count} START tiles, each ${board.start.steps} steps and ${board.start.energy} Energy from the Summit, so no seat starts closer.`;
+      const { frames, fixed } = frameMarkup(slots, 40, root.dataset.base!);
+      svg.setAttribute('viewBox', viewBox(slots));
+      framesLayer.innerHTML = frames;
+      fixedLayer.innerHTML = fixed;
+      reset();
+
+      const counts = frameCounts(slots);
+      const total = Object.values(counts).reduce((a, b) => a + b, 0);
+      const top = Math.max(...slots.map((s) => s.e)) as Elev;
+      const parts = [`${counts[1]} green`, `${counts[2]} teal`, counts[3] && `${counts[3]} blue`, counts[4] && `${counts[4]} white`].filter(Boolean);
+      $('[data-name]').textContent = l.name;
+      $('[data-blurb]').textContent = l.blurb;
+      $('[data-frames-used]').textContent = `${total} of the 14 frames in the box: ${parts.join(', ')}. ${SUMMIT_NAME[top]} Summit.`;
+      $('[data-title]').textContent = `${l.name}: a mountain of empty frames, green at the foot and the Summit on the highest frame.`;
+
+      // The mountain rises from the meadows to the Summit, one elevation after the other.
+      if (!reduceMotion.matches) {
+        for (const g of root.querySelectorAll<SVGGElement>('.slot, .fixed-summit, .fixed-start')) {
+          const e = Number(g.dataset.e);
+          const [x, y] = (g.getAttribute('transform') ?? '').match(/-?[\d.]+/g)!.map(Number);
+          const at = `translate(${x}px, ${y}px)`;
+          g.animate(
+            [{ opacity: 0, transform: `${at} scale(0.618)` }, { opacity: 1, transform: `${at} scale(1)` }],
+            { duration: 618, delay: (e - 1) * 120 + Math.random() * 90, easing: EASE, fill: 'backwards' },
+          );
+        }
+      }
+    }
+
+    const iconSvg = (name: string) => iconMarkup(name);
+
+    function describe(t: Tile, note?: string) {
+      const gear = t.gear === 'lava'
+        ? '<p class="warn">No climber can enter lava. Routes go around it.</p>'
+        : t.gear.length === 0
+          ? '<p>No gear needed.</p>'
+          : `<div class="gear-row">${t.gear.map((g) => `<span class="gear-chip">${iconSvg(g)}${GEAR_NAME[g]}</span>`).join('')}</div>`;
+      const vp = t.viewpoint ? ' A viewpoint: bring the Camera.' : '';
+      last.innerHTML = `
+        <img src="${t.src}" alt="" width="88" height="76">
+        <div>
+          <p class="last-name">${t.name}</p>
+          <p class="last-meta">Elevation ${t.e}, ${COST[t.e]} Energy to enter.${vp}</p>
+          ${note ? `<p class="warn">${note}</p>` : gear}
+        </div>`;
+    }
+
+    /**
+     * Where a drawn tile goes, simulating how players build: a new tile opens the path from tiles already on the
+     * board — its own elevation or the one below (the START tiles seed the green frames). The path leans towards
+     * the Summit but wanders, so it doesn't grow in a straight line. With nothing to connect to yet, the tile goes
+     * in the empty slot closest to what has been built.
+     */
+    function frontier(e: Elev): Slot[] {
+      const free = open(e);
+      const seed = (id: number) => {
+        const s = slots[id];
+        if (s.kind === 'start') return e === 1;
+        return filled.has(id) && (s.e === e || s.e === e - 1);
+      };
+      return free.filter((s) => nb[s.id].some(seed));
+    }
+
+    function chooseSlot(e: Elev): Slot | undefined {
+      let pool = frontier(e);
+      if (!pool.length) {
+        const free = open(e);
+        if (!free.length) return undefined;
+        const built = slots.filter((s) => s.kind === 'start' || (filled.has(s.id) && s.e <= e));
+        const gap = (s: Slot) =>
+          Math.min(...built.map((b) => (Math.abs(s.q - b.q) + Math.abs(s.r - b.r) + Math.abs(s.q + s.r - b.q - b.r)) / 2));
+        const near = Math.min(...free.map(gap));
+        pool = free.filter((s) => gap(s) <= near + 1);
+      }
+      // Weighted pick: closer to the Summit is likelier, but every open edge has a chance.
+      const far = Math.max(...toSummit) || 1;
+      const weights = pool.map((s) => 0.6 + 1.8 * Math.pow(1 - toSummit[s.id] / far, 2) + Math.random() * 0.8);
+      let r = Math.random() * weights.reduce((a, b) => a + b, 0);
+      for (let i = 0; i < pool.length; i++) if ((r -= weights[i]) <= 0) return pool[i];
+      return pool[pool.length - 1];
+    }
+
+    function draw(e: Elev, quick = false): boolean {
+      const bag = bags[e];
+      if (!bag.length) return false;
+      const tile = bag.splice(Math.floor(Math.random() * bag.length), 1)[0];
+      const slot = chooseSlot(e);
+      if (!slot) {
+        bag.push(tile);
+        const reason = `No empty ${COLOUR[e]} slot. It goes back in the bag.`;
+        if (!quick) describe(tile, reason);
+        update();
+        return false;
+      }
+      const img = document.createElementNS(NS, 'image');
+      img.setAttribute('href', tile.src);
+      img.setAttribute('x', String(slot.x - W / 2));
+      img.setAttribute('y', String(slot.y - H / 2));
+      img.setAttribute('width', String(W));
+      img.setAttribute('height', String(H));
+      img.setAttribute('class', 'tile-img');
+      const title = document.createElementNS(NS, 'title');
+      title.textContent = `${tile.name}, Elevation ${tile.e}`;
+      img.append(title);
+      layer.append(img);
+      filled.set(slot.id, img);
+      if (!reduceMotion.matches) {
+        img.animate(
+          [
+            { transform: 'translateY(-38px) scale(1.12)', opacity: 0, filter: 'drop-shadow(0 18px 10px rgb(34 48 60 / .35))' },
+            { transform: 'translateY(0) scale(1)', opacity: 1, filter: 'drop-shadow(0 0 0 rgb(34 48 60 / 0))' },
+          ],
+          { duration: quick ? 382 : 618, easing: EASE },
+        );
+      }
+      if (!quick) describe(tile, tile.gear === 'lava' && slot.nearSummit
+        ? 'Lava beside the Summit. It may go anywhere; if it closes every route, the most Golden Tickets wins.'
+        : undefined);
+      update();
+      return true;
+    }
+
+    /** Fill the mountain the way a game would: bags are drawn in turn, mostly where a path can continue. */
+    async function fillAll() {
+      const me = ++run;
+      filling = true;
+      update();
+      const wait = reduceMotion.matches ? 0 : 38;
+      for (let guard = 0; guard < 2000; guard++) {
+        const options = ([1, 2, 3, 4] as Elev[]).filter((e) => open(e).length && bags[e].length);
+        if (!options.length) break;
+        const weights = options.map((e) => (frontier(e).length ? 3 : 0.35));
+        let r = Math.random() * weights.reduce((a, b) => a + b, 0);
+        const e = options.find((_, k) => (r -= weights[k]) <= 0) ?? options[options.length - 1];
+        if (draw(e, true) && wait) await new Promise((res) => setTimeout(res, wait));
+        if (me !== run) return;
+      }
+      filling = false;
+      update();
+      last.innerHTML = '<p>A mountain nobody has climbed before. Clear the frames, or pick another shape, and every draw builds a different one.</p>';
+    }
+
+    pickButtons.forEach((b) =>
+      b.addEventListener('click', () => {
+        pickButtons.forEach((p) => p.setAttribute('aria-pressed', String(p === b)));
+        const id = b.dataset.layout!;
+        showLayout(id === 'random' ? randomLayout() : layouts.find((l) => l.id === id)!);
+      }),
+    );
+    bagButtons.forEach((b) => b.addEventListener('click', () => draw(Number(b.dataset.bag) as Elev)));
+    fillBtn.addEventListener('click', fillAll);
+    resetBtn.addEventListener('click', reset);
+    reset();
+  }
+</script>

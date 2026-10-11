@@ -1,0 +1,75 @@
+---
+// Hero: the title in the left 38.2%, a living map of a mountain drawing itself in the right 61.8%.
+import HeroMap from '../HeroMap.astro';
+import { facts } from '../../data/game';
+import { links } from '../../data/site';
+---
+<section class="hero" id="top">
+  <HeroMap />
+  <div class="hero-copy wrap">
+    <h1>Magic Mountain</h1>
+    <p class="tagline">Build the mountain. Master the climb.</p>
+    <ul class="facts">
+      <li class="glass">{facts.players}</li>
+      <li class="glass">{facts.age}</li>
+      <li class="glass">{facts.time}</li>
+    </ul>
+    <div class="actions">
+      <a class="button" href="#play">Build a mountain</a>
+      <a class="button ghost" href={links.rulebook} download>Download the rulebook</a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    display: flex; align-items: center;
+    min-height: min(calc(100svh - 3.618rem), 61.8vw);
+    padding-block: var(--s-xl);
+  }
+  .hero > :global(.hero-map) { position: absolute; inset: var(--s-s) var(--s-s) var(--s-s) 38.2%; }
+
+  .hero-copy { position: relative; z-index: 1; display: grid; gap: var(--s-s); justify-items: start; }
+  .hero-copy > * { max-width: 38.2%; }
+  .hero-copy > .actions, .hero-copy > .facts { max-width: 42%; }
+
+  h1 {
+    font-size: clamp(2.618rem, 1rem + 5.2vw, 6.854rem);
+    color: var(--ink);
+    animation: rise var(--t-slow) var(--ease) both;
+  }
+  .tagline {
+    font-family: var(--font-display); font-size: var(--step-2); line-height: var(--leading-tight);
+    color: var(--ink-soft);
+    animation: rise var(--t-slow) var(--ease) 120ms both;
+  }
+  .facts {
+    list-style: none; padding: 0;
+    display: flex; flex-wrap: wrap; gap: var(--s-2xs);
+    animation: rise var(--t-slow) var(--ease) 240ms both;
+  }
+  .facts li {
+    padding: 0.15em 0.75em; border-radius: 999px;
+    font-size: var(--step--1); font-weight: 600; white-space: nowrap;
+  }
+  .actions { animation: rise var(--t-slow) var(--ease) 360ms both; }
+  .button.ghost {
+    background: var(--glass-fill);
+    -webkit-backdrop-filter: var(--glass-blur); backdrop-filter: var(--glass-blur);
+    box-shadow: var(--glass-shadow);
+  }
+
+  @keyframes rise { from { opacity: 0; transform: translateY(0.618rem); } }
+  @media (prefers-reduced-motion: reduce) {
+    .hero-copy * { animation: none !important; }
+  }
+
+  /* Narrow screens: the map on top, the copy below it */
+  @media (max-width: 56rem) {
+    .hero { display: grid; min-height: 0; padding-block: var(--s-s) var(--s-xl); gap: var(--s-m); }
+    .hero > :global(.hero-map) { position: relative; inset: auto; width: 100%; }
+    .hero-copy > *, .hero-copy > .actions, .hero-copy > .facts { max-width: 100%; }
+    h1 { font-size: var(--step-4); }
+  }
+</style>

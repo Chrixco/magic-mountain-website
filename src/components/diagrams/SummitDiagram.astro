@@ -1,0 +1,67 @@
+---
+// The three Summit tiles (rulebook figure): cost, gear and highest frame for each game length,
+// then "the mountain closes": a Summit sealed by lava ends the game on Golden Tickets.
+import Icon from '../Icon.astro';
+import Energy from './Energy.astro';
+import { mountains, gearName, terrain, tileSrc } from '../../data/game';
+import { asset } from '../../data/site';
+
+const lava = terrain.find((t) => t.elevation === 3 && t.id === 'lava')!;
+// Six lava tiles around the Summit: flat-top hexagons 36% wide touch at a centre distance of 18% × √3.
+const d = 18 * Math.sqrt(3);
+const ring = Array.from({ length: 6 }, (_, k) => {
+  const a = (Math.PI / 3) * k + Math.PI / 6;
+  return { x: 50 + d * Math.cos(a), y: 50 + d * Math.sin(a) };
+});
+---
+<figure class="diagram summits">
+  <div>
+    <p class="diagram-title">Three Summit tiles</p>
+    <p>Each game length has its own Summit, with its cost and gear printed on the tile. The Boat is never needed.</p>
+  </div>
+
+  <ul class="tiles">
+    {mountains.map((m) => (
+      <li class={`e${m.frame}`}>
+        <img src={asset(`tiles/summit_${m.name.toLowerCase()}_large.webp`)} alt={`${m.name} Summit tile`} width="219" height="190" loading="lazy" data-tilt="tile" />
+        <strong>{m.name}</strong>
+        <Energy n={m.summit} />
+        <span class="gear-row">{m.gear.map((g) => <span class="gear-chip"><Icon name={g} size="1.1em" />{gearName[g]}</span>)}</span>
+        <small><span class="hex-badge" aria-hidden="true">{m.frame}</span> highest frame</small>
+      </li>
+    ))}
+  </ul>
+</figure>
+
+<figure class="diagram closes">
+  <div class="sealed" role="img" aria-label="The Summit tile surrounded on every side by lava tiles.">
+    {ring.map((p) => <img class="lava" src={asset(tileSrc(lava))} alt="" style={`left:${p.x}%; top:${p.y}%`} />)}
+    <img class="peak" src={asset('tiles/summit_standard.webp')} alt="" />
+  </div>
+  <div class="text">
+    <p class="diagram-title">The mountain closes</p>
+    <p>
+      Lava may go in any empty slot, even beside the Summit. If no climber can reach the Summit any more, the game
+      ends at once: the most Golden Tickets wins, then the climber standing highest.
+    </p>
+  </div>
+</figure>
+
+<style>
+  .tiles { list-style: none; padding: 0; display: grid; gap: var(--s-m); grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr)); }
+  .tiles li { display: grid; justify-items: center; align-content: start; gap: 0.25rem; text-align: center; }
+  .tiles img { width: 8.472rem; height: auto; filter: drop-shadow(0 4px 6px rgb(34 48 60 / 0.3)); }
+  .tiles strong { font-family: var(--font-display); font-weight: 400; font-size: var(--step-1); color: var(--forest); }
+  .tiles :global(.energy) { font-size: var(--step-1); }
+  .tiles .gear-row { justify-content: center; }
+  .tiles :global(.gear-chip) { font-size: var(--step--2); }
+  .tiles small { display: inline-flex; align-items: center; gap: 0.3rem; font-size: var(--step--1); color: var(--ink-soft); }
+  .tiles .hex-badge { width: 1.272rem; font-size: var(--step--2); }
+
+  .closes { grid-template-columns: auto 1fr; align-items: center; background: rgb(181 86 47 / 0.07); border-color: rgb(181 86 47 / 0.3); }
+  @media (max-width: 40rem) { .closes { grid-template-columns: 1fr; justify-items: center; } }
+  .sealed { position: relative; width: 11.09rem; aspect-ratio: 1; }
+  .sealed img { position: absolute; width: 36%; height: auto; translate: -50% -50%; filter: drop-shadow(0 2px 3px rgb(34 48 60 / 0.3)); }
+  .sealed .peak { left: 50%; top: 50%; z-index: 1; outline: none; }
+  .closes .text p:last-child { font-size: var(--step--1); color: var(--ink); }
+</style>

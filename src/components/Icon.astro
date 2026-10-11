@@ -1,0 +1,23 @@
+---
+// Gear and tile symbols from Final Design/Symbols, so the site uses the same marks as the tiles.
+import type { Gear } from '../data/game';
+import { icons, ICON_VIEWBOX, ICON_STROKE } from '../data/icons';
+
+interface Props { name: Gear | 'summit'; size?: string; label?: string }
+const { name, size = '1.618em', label } = Astro.props;
+---
+<svg
+  class="icon"
+  viewBox={ICON_VIEWBOX}
+  width={size}
+  height={size}
+  fill="none"
+  stroke="currentColor"
+  stroke-width={ICON_STROKE}
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  role={label ? 'img' : undefined}
+  aria-label={label}
+  aria-hidden={label ? undefined : 'true'}
+  set:html={icons[name]}
+/>

@@ -1,0 +1,64 @@
+---
+// Gear: the 3D-printed pieces in a photo, then the eight items with icon, price and use.
+import { Image } from 'astro:assets';
+import Icon from '../Icon.astro';
+import { gear } from '../../data/game';
+import equipmentPhoto from '../../assets/photos/equipment.png';
+---
+<section class="section" id="gear">
+  <div class="wrap">
+    <div class="intro">
+      <figure class="photo glass">
+        <Image
+          data-tilt="photo"
+          src={equipmentPhoto}
+          alt="The 3D-printed equipment pieces in white on a grey table: a tent, a crossed ice axe, a pair of snow boots, an inflatable boat, a helmet, a coiled rope and a pair of crampons."
+          widths={[640, 960, 1300]}
+          sizes="(min-width: 56rem) 42rem, 100vw"
+        />
+        <figcaption>The gear is 3D printed too: Tent, Ice Axe, Snow Boots, Boat, Helmet, Rope and Crampons.</figcaption>
+      </figure>
+      <div class="section-head">
+        <h2>Eight pieces of gear, one per turn</h2>
+        <p>
+          Climbers start with nothing and buy one piece per turn. The box holds four of every piece, one per
+          player, so nothing can be bought out from under you, and each price sits below the income you’ll have
+          when the mountain first asks for it. Rivals never hand over their rope; only a teammate will.
+        </p>
+      </div>
+    </div>
+
+    <ul class="gear">
+      {gear.map((g) => (
+        <li>
+          <Icon name={g.id} size="2.618rem" />
+          <h3>{g.name}</h3>
+          <p class="price">{g.cost} Energy</p>
+          <p class="muted">{g.text}</p>
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>
+
+<style>
+  .intro { display: grid; gap: var(--s-l); align-items: center; margin-bottom: var(--s-xl); }
+  @media (min-width: 56rem) {
+    .intro { grid-template-columns: 1.618fr 1fr; }
+    .intro .section-head { margin-bottom: 0; }
+  }
+
+  .photo { padding: var(--s-xs); border-radius: var(--r-l); }
+  .photo img { width: 100%; height: auto; aspect-ratio: 1.618; object-fit: cover; object-position: 50% 55%; /* keeps the tent at the top and the crampons at the bottom in frame */ border-radius: var(--r-m); }
+  .photo figcaption { padding: var(--s-xs) var(--s-2xs) var(--s-3xs); font-size: var(--step--1); color: var(--ink-soft); }
+
+  .gear {
+    list-style: none; padding: 0;
+    display: grid; gap: var(--s-m) var(--s-l); grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr));
+  }
+  .gear li { display: grid; grid-template-columns: auto 1fr; column-gap: var(--s-s); align-content: start; }
+  .gear :global(.icon) { grid-row: span 3; color: var(--e3); }
+  .gear h3 { font-size: var(--step-1); }
+  .price { font-weight: 650; color: var(--forest); font-size: var(--step--1); }
+  .gear p.muted { font-size: var(--step--1); line-height: 1.5; }
+</style>

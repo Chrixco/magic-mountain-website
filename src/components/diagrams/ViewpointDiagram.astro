@@ -1,0 +1,62 @@
+---
+// Photographing a viewpoint (rulebook figure): viewpoint tile + Camera, four short steps, two outcomes.
+import { Image } from 'astro:assets';
+import Icon from '../Icon.astro';
+import Energy from './Energy.astro';
+import { terrain, tileSrc } from '../../data/game';
+import { asset } from '../../data/site';
+import ticket from '../../assets/cards/ticket-summit-permit.png';
+
+const water = terrain.find((t) => t.elevation === 1 && t.id === 'water')!;
+---
+<figure class="diagram viewpoint">
+  <div>
+    <p class="diagram-title">Photographing a viewpoint</p>
+    <p>Ten tiles carry a camera icon. With the Camera in your kit, a stop there can win a Golden Ticket.</p>
+  </div>
+
+  <div class="layout">
+    <div class="kit">
+      <img src={asset(tileSrc(water, true))} alt="A viewpoint tile with the camera icon" width="120" height="104" loading="lazy" />
+      <span class="plus" aria-hidden="true">+</span>
+      <span class="camera"><Icon name="camera" size="2.618rem" /><small>Camera, <Energy n={2} /></small></span>
+    </div>
+
+    <ol class="steps">
+      <li><strong>End your move on it.</strong> Entering costs the same as any tile of its elevation.</li>
+      <li><strong>Pay <Energy n={1} /> to photograph.</strong> Only with the Camera, on your turn.</li>
+      <li><strong>First photo of this viewpoint?</strong> Draw a Golden Ticket. Already photographed: gain <Energy n={3} /> instead.</li>
+      <li><strong>Mark it as photographed.</strong></li>
+    </ol>
+
+    <div class="outcomes">
+      <Image src={ticket} alt="A Golden Ticket card" widths={[160, 320]} sizes="4.236rem" />
+      <span class="or">or</span>
+      <span class="plus3"><Energy n="+3" /></span>
+    </div>
+  </div>
+</figure>
+
+<style>
+  .layout { display: grid; gap: var(--s-m); align-items: center; }
+  @media (min-width: 56rem) { .layout { grid-template-columns: auto 1fr auto; } }
+  .kit { display: flex; align-items: center; gap: var(--s-xs); }
+  .kit img { width: 6.854rem; height: auto; filter: drop-shadow(0 3px 4px rgb(34 48 60 / 0.25)); }
+  .plus { font-size: var(--step-2); color: var(--ink-soft); }
+  .camera {
+    display: grid; justify-items: center; gap: 0.2rem;
+    padding: var(--s-xs); border-radius: var(--r-m); background: #fff; border: 1px solid var(--line);
+    font-size: var(--step--1);
+  }
+  .steps { list-style: none; padding: 0; counter-reset: v; display: grid; gap: var(--s-2xs); font-size: var(--step--1); }
+  .steps li { counter-increment: v; position: relative; padding-left: 2.236rem; }
+  .steps li::before {
+    content: counter(v); position: absolute; left: 0; top: -0.1rem;
+    display: grid; place-items: center; width: 1.618rem; height: 1.618rem; border-radius: 50%;
+    background: var(--forest); color: #fff; font-weight: 700;
+  }
+  .outcomes { display: flex; align-items: center; gap: var(--s-xs); }
+  .outcomes :global(img) { width: 4.236rem; height: auto; border-radius: 0.236rem; box-shadow: var(--shadow); rotate: 3deg; }
+  .or { font-size: var(--step--1); color: var(--ink-soft); }
+  .plus3 { font-size: var(--step-2); }
+</style>

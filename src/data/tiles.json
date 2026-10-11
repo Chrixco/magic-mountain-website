@@ -1,0 +1,393 @@
+{
+ "1:clear-meadow": [
+  {
+   "src": "tiles/e1_clear-meadow_a.webp",
+   "copies": 6,
+   "viewpoint": false
+  },
+  {
+   "src": "tiles/e1_clear-meadow_f.webp",
+   "copies": 2,
+   "viewpoint": false
+  },
+  {
+   "src": "tiles/e1_clear-meadow_j.webp",
+   "copies": 2,
+   "viewpoint": false
+  },
+  {
+   "src": "tiles/e1_clear-meadow_n_vp.webp",
+   "copies": 1,
+   "viewpoint": true
+  },
+  {
+   "src": "tiles/e1_clear-meadow_n.webp",
+   "copies": 3,
+   "viewpoint": false
+  }
+ ],
+ "1:clear-stream": [
+  {
+   "src": "tiles/e1_clear-stream_b.webp",
+   "copies": 1,
+   "viewpoint": false
+  },
+  {
+   "src": "tiles/e1_clear-stream_d.webp",
+   "copies": 1,
+   "viewpoint": false
+  },
+  {
+   "src": "tiles/e1_clear-stream_g_vp.webp",
+   "copies": 1,
+   "viewpoint": true
+  },
+  {
+   "src": "tiles/e1_clear-stream_g.webp",
+   "copies": 1,
+   "viewpoint": false
+  },
+  {
+   "src": "tiles/e1_clear-stream_h.webp",
+   "copies": 1,
+   "viewpoint": false
+  },
+  {
+   "src": "tiles/e1_clear-stream_k.webp",
+   "copies": 2,
+   "viewpoint": false
+  },
+  {
+   "src": "tiles/e1_clear-stream_l.webp",
+   "copies": 1,
+   "viewpoint": false
+  },
+  {
+   "src": "tiles/e1_clear-stream_o.webp",
+   "copies": 2,
+   "viewpoint": false
+  },
+  {
+   "src": "tiles/e1_clear-stream_p.webp",
+   "copies": 2,
+   "viewpoint": false
+  }
+ ],
+ "1:lava": [
+  {
+   "src": "tiles/e1_lava_e.webp",
+   "copies": 2,
+   "viewpoint": false
+  }
+ ],
+ "1:water": [
+  {
+   "src": "tiles/e1_water_c.webp",
+   "copies": 2,
+   "viewpoint": false
+  },
+  {
+   "src": "tiles/e1_water_i_vp.webp",
+   "copies": 1,
+   "viewpoint": true
+  },
+  {
+   "src": "tiles/e1_water_m.webp",
+   "copies": 2,
+   "viewpoint": false
+  },
+  {
+   "src": "tiles/e1_water_q.webp",
+   "copies": 2,
+   "viewpoint": false
+  }
+ ],
+ "2:clear": [
+  {
+   "src": "tiles/e2_clear_a.webp",
+   "copies": 1,
+   "viewpoint": false
+  },
+  {
+   "src": "tiles/e2_clear_g.webp",
+   "copies": 1,
+   "viewpoint": false
+  },
+  {
+   "src": "tiles/e2_clear_k.webp",
+   "copies": 2,
+   "viewpoint": false
+  }
+ ],
+ "2:lava": [
+  {
+   "src": "tiles/e2_lava_l.webp",
+   "copies": 2,
+   "viewpoint": false
+  }
+ ],
+ "2:rock": [
+  {
+   "src": "tiles/e2_rock_d_vp.webp",
+   "copies": 1,
+   "viewpoint": true
+  },
+  {
+   "src": "tiles/e2_rock_h.webp",
+   "copies": 1,
+   "viewpoint": false
+  },
+  {
+   "src": "tiles/e2_rock_j.webp",
+   "copies": 1,
+   "viewpoint": false
+  },
+  {
+   "src": "tiles/e2_rock_m.webp",
+   "copies": 1,
+   "viewpoint": false
+  },
+  {
+   "src": "tiles/e2_rock_n.webp",
+   "copies": 1,
+   "viewpoint": false
+  }
+ ],
+ "2:snow-slope": [
+  {
+   "src": "tiles/e2_snow-slope_c.webp",
+   "copies": 5,
+   "viewpoint": false
+  }
+ ],
+ "2:snow": [
+  {
+   "src": "tiles/e2_snow_b.webp",
+   "copies": 4,
+   "viewpoint": false
+  },
+  {
+   "src": "tiles/e2_snow_i_vp.webp",
+   "copies": 1,
+   "viewpoint": true
+  },
+  {
+   "src": "tiles/e2_snow_i.webp",
+   "copies": 3,
+   "viewpoint": false
+  },
+  {
+   "src": "tiles/e2_snow_o.webp",
+   "copies": 3,
+   "viewpoint": false
+  }
+ ],
+ "2:snowy-rock": [
+  {
+   "src": "tiles/e2_snowy-rock_e_vp.webp",
+   "copies": 1,
+   "viewpoint": true
+  },
+  {
+   "src": "tiles/e2_snowy-rock_e.webp",
+   "copies": 2,
+   "viewpoint": false
+  }
+ ],
+ "2:water": [
+  {
+   "src": "tiles/e2_water_f.webp",
+   "copies": 5,
+   "viewpoint": false
+  }
+ ],
+ "3:deep-water": [
+  {
+   "src": "tiles/e3_deep-water_m_vp.webp",
+   "copies": 1,
+   "viewpoint": true
+  },
+  {
+   "src": "tiles/e3_deep-water_m.webp",
+   "copies": 3,
+   "viewpoint": false
+  }
+ ],
+ "3:icy-rock": [
+  {
+   "src": "tiles/e3_icy-rock_b.webp",
+   "copies": 5,
+   "viewpoint": false
+  },
+  {
+   "src": "tiles/e3_icy-rock_h_vp.webp",
+   "copies": 1,
+   "viewpoint": true
+  }
+ ],
+ "3:icy-shore": [
+  {
+   "src": "tiles/e3_icy-shore_n.webp",
+   "copies": 1,
+   "viewpoint": false
+  },
+  {
+   "src": "tiles/e3_icy-shore_p.webp",
+   "copies": 2,
+   "viewpoint": false
+  }
+ ],
+ "3:lava": [
+  {
+   "src": "tiles/e3_lava_e.webp",
+   "copies": 2,
+   "viewpoint": false
+  },
+  {
+   "src": "tiles/e3_lava_i.webp",
+   "copies": 1,
+   "viewpoint": false
+  }
+ ],
+ "3:ridge": [
+  {
+   "src": "tiles/e3_ridge_d.webp",
+   "copies": 3,
+   "viewpoint": false
+  },
+  {
+   "src": "tiles/e3_ridge_l.webp",
+   "copies": 2,
+   "viewpoint": false
+  }
+ ],
+ "3:snow-patch": [
+  {
+   "src": "tiles/e3_snow-patch_a.webp",
+   "copies": 2,
+   "viewpoint": false
+  },
+  {
+   "src": "tiles/e3_snow-patch_f.webp",
+   "copies": 1,
+   "viewpoint": false
+  }
+ ],
+ "3:snow-shore": [
+  {
+   "src": "tiles/e3_snow-shore_c.webp",
+   "copies": 3,
+   "viewpoint": false
+  }
+ ],
+ "3:snowfield": [
+  {
+   "src": "tiles/e3_snowfield_g.webp",
+   "copies": 2,
+   "viewpoint": false
+  },
+  {
+   "src": "tiles/e3_snowfield_j.webp",
+   "copies": 2,
+   "viewpoint": false
+  },
+  {
+   "src": "tiles/e3_snowfield_k.webp",
+   "copies": 2,
+   "viewpoint": false
+  },
+  {
+   "src": "tiles/e3_snowfield_o.webp",
+   "copies": 2,
+   "viewpoint": false
+  }
+ ],
+ "4:ice-field": [
+  {
+   "src": "tiles/e4_ice-field_c.webp",
+   "copies": 1,
+   "viewpoint": false
+  },
+  {
+   "src": "tiles/e4_ice-field_d.webp",
+   "copies": 2,
+   "viewpoint": false
+  },
+  {
+   "src": "tiles/e4_ice-field_e.webp",
+   "copies": 1,
+   "viewpoint": false
+  },
+  {
+   "src": "tiles/e4_ice-field_j.webp",
+   "copies": 3,
+   "viewpoint": false
+  },
+  {
+   "src": "tiles/e4_ice-field_n.webp",
+   "copies": 2,
+   "viewpoint": false
+  }
+ ],
+ "4:ice-wall": [
+  {
+   "src": "tiles/e4_ice-wall_a.webp",
+   "copies": 5,
+   "viewpoint": false
+  },
+  {
+   "src": "tiles/e4_ice-wall_f.webp",
+   "copies": 2,
+   "viewpoint": false
+  },
+  {
+   "src": "tiles/e4_ice-wall_g_vp.webp",
+   "copies": 1,
+   "viewpoint": true
+  },
+  {
+   "src": "tiles/e4_ice-wall_g.webp",
+   "copies": 3,
+   "viewpoint": false
+  },
+  {
+   "src": "tiles/e4_ice-wall_h.webp",
+   "copies": 2,
+   "viewpoint": false
+  },
+  {
+   "src": "tiles/e4_ice-wall_i.webp",
+   "copies": 2,
+   "viewpoint": false
+  },
+  {
+   "src": "tiles/e4_ice-wall_k.webp",
+   "copies": 1,
+   "viewpoint": false
+  },
+  {
+   "src": "tiles/e4_ice-wall_l.webp",
+   "copies": 2,
+   "viewpoint": false
+  }
+ ],
+ "4:lava": [
+  {
+   "src": "tiles/e4_lava_m.webp",
+   "copies": 3,
+   "viewpoint": false
+  }
+ ],
+ "4:water": [
+  {
+   "src": "tiles/e4_water_b_vp.webp",
+   "copies": 1,
+   "viewpoint": true
+  },
+  {
+   "src": "tiles/e4_water_b.webp",
+   "copies": 4,
+   "viewpoint": false
+  }
+ ]
+}

@@ -1,0 +1,28 @@
+---
+// An Energy amount: the number with a lightning bolt, in summit gold (as on the rulebook figures).
+// <Energy n={2} />  →  2⚡      <Energy card />  →  one Energy card
+interface Props { n?: number | string; card?: boolean }
+const { n, card = false } = Astro.props;
+---
+{card ? (
+  <span class="energy-card" aria-hidden="true">
+    <svg viewBox="0 0 24 24" width="62%" height="62%"><path d="M13.5 2 5 13.5h6l-1.5 8.5L18 10.5h-6z" /></svg>
+  </span>
+) : (
+  <span class="energy">
+    {n}<svg viewBox="0 0 24 24" width="0.9em" height="0.9em" aria-hidden="true"><path d="M13.5 2 5 13.5h6l-1.5 8.5L18 10.5h-6z" /></svg>
+    <span class="visually-hidden">Energy</span>
+  </span>
+)}
+
+<style>
+  .energy { display: inline-flex; align-items: center; gap: 0.05em; font-weight: 700; color: var(--gold); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .energy svg { fill: currentColor; }
+  .energy-card {
+    display: inline-grid; place-items: center;
+    width: 1.618rem; aspect-ratio: 1 / 1.4;
+    border: 1.5px solid var(--gold); border-radius: 0.236rem;
+    background: #fff8ec;
+  }
+  .energy-card svg { fill: var(--gold); }
+</style>

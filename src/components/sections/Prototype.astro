@@ -1,0 +1,66 @@
+---
+// Already on the table: playtest photos, then one call to action for players and one for publishers.
+import { Image } from 'astro:assets';
+import { links } from '../../data/site';
+import photo1 from '../../assets/photos/playtest-1.jpg';
+import photo2 from '../../assets/photos/playtest-2.jpg';
+import photo3 from '../../assets/photos/playtest-3.jpg';
+---
+<section class="section" id="table">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Already on the table</h2>
+      <p>Magic Mountain is a working prototype. The frames and terrain are 3D printed, the cards are printed from the final art, and the game is in playtesting now.</p>
+    </div>
+
+    <!-- one wide photo and two stacked beside it, in golden proportions -->
+    <div class="photos">
+      <Image
+        class="main" data-tilt="photo" src={photo2} widths={[640, 960, 1400, 1800]} sizes="(min-width: 56rem) 44rem, 100vw"
+        alt="A game in progress: green, grey and white hexagonal frames on a wooden table, partly filled with meadow, rock, snow and lava tiles, a START tile at the foot and a climber figure near the top."
+      />
+      <Image
+        data-tilt="photo" src={photo1} widths={[480, 720, 960]} sizes="(min-width: 56rem) 27rem, 100vw"
+        alt="The table from above: half-built mountain, decks of Day, Food and Golden Ticket cards, 3D-printed gear tokens and red dice."
+      />
+      <Image
+        data-tilt="photo" src={photo3} widths={[480, 720, 960]} sizes="(min-width: 56rem) 27rem, 100vw"
+        alt="Later in the same game: two climbers on the white frames near the Summit, Golden Tickets laid out beside the board."
+      />
+    </div>
+
+    <div class="ways">
+      <div class="way glass players">
+        <h3>Want to play it?</h3>
+        <p>The prototype is in playtesting now. Groups of 2–4 players, ages 10 and up, help shape the final game.</p>
+        <a class="button" href={links.playtest}>Join a playtest</a>
+      </div>
+      <div class="way glass publishers">
+        <h3>Thinking of publishing it?</h3>
+        <p>The rulebook, component list and production notes are ready, and the prototype is on the table.</p>
+        <a class="button" href="#publishers">See the publisher notes</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .photos { display: grid; gap: var(--s-xs); }
+  .photos img { width: 100%; height: 100%; object-fit: cover; border-radius: var(--r-m); aspect-ratio: 1.618; }
+  @media (min-width: 56rem) {
+    .photos { grid-template-columns: 1.618fr 1fr; grid-template-rows: 1fr 1fr; }
+    .photos .main { grid-row: span 2; aspect-ratio: auto; }
+  }
+
+  .ways { margin-top: var(--s-l); display: grid; gap: var(--s-s); }
+  @media (min-width: 56rem) { .ways { grid-template-columns: 1fr 1fr; } }
+  .way {
+    display: grid; gap: var(--s-xs); align-content: start; justify-items: start;
+    padding: var(--s-m) var(--s-l);
+    border-radius: var(--r-l);
+  }
+  .way h3 { font-size: var(--step-2); }
+  .way p { color: var(--ink-soft); }
+  .players { box-shadow: var(--glass-shadow), inset 0 0.382rem 0 var(--e1); }
+  .publishers { box-shadow: var(--glass-shadow), inset 0 0.382rem 0 var(--gold); }
+</style>

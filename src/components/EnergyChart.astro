@@ -1,0 +1,81 @@
+---
+// Where the energy goes, per mountain (rulebook §5). Colours validated with the dataviz palette checker
+// against the snow background; every segment carries a visible value and the table is one click away.
+import { mountains, budgetKeys } from '../data/game';
+const max = Math.max(...mountains.map((m) => Object.values(m.budget).reduce((a, b) => a + b, 0)));
+---
+<figure class="energy">
+  <figcaption>
+    <h3>Where the energy goes</h3>
+    <p class="muted">Energy spent by one climber across a whole game, on each of the three mountains.</p>
+  </figcaption>
+  <ul class="legend" aria-hidden="true">
+    {budgetKeys.map((k) => <li><span class="swatch" style={`--c:${k.color}`}></span>{k.label}</li>)}
+  </ul>
+  <div class="rows">
+    {mountains.map((m) => {
+      const total = Object.values(m.budget).reduce((a, b) => a + b, 0);
+      return (
+        <div class="row">
+          <span class="row-name">{m.name}</span>
+          <div class="bar" style={`--w:${(total / max) * 100}%`} role="img" aria-label={`${m.name}: ${total} Energy in total. ` + budgetKeys.map((k) => `${k.label} ${m.budget[k.key]}`).join(', ')}>
+            {budgetKeys.map((k) => (
+              <span class="seg" style={`--c:${k.color}; flex:${m.budget[k.key]}`} tabindex="-1">
+                <span class="seg-val">{m.budget[k.key]}</span>
+                <span class="tip">{k.label}: {m.budget[k.key]} Energy</span>
+              </span>
+            ))}
+          </div>
+          <span class="row-total">{total}</span>
+        </div>
+      );
+    })}
+  </div>
+  <details>
+    <summary>Show as a table</summary>
+    <table>
+      <thead><tr><th scope="col">Energy spent on</th>{mountains.map((m) => <th scope="col">{m.name}</th>)}</tr></thead>
+      <tbody>
+        {budgetKeys.map((k) => <tr><th scope="row">{k.label}</th>{mountains.map((m) => <td>{m.budget[k.key]}</td>)}</tr>)}
+        <tr class="total"><th scope="row">Total</th>{mountains.map((m) => <td>{Object.values(m.budget).reduce((a, b) => a + b, 0)}</td>)}</tr>
+      </tbody>
+    </table>
+  </details>
+</figure>
+
+<style>
+  .energy { display: grid; gap: var(--s-s); }
+  figcaption > * + * { margin-top: var(--s-3xs); }
+  .legend { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: var(--s-2xs) var(--s-m); font-size: var(--step--1); color: var(--ink-soft); }
+  .legend li { display: inline-flex; align-items: center; gap: var(--s-2xs); }
+  .swatch { width: 0.618rem; height: 0.618rem; border-radius: 2px; background: var(--c); }
+  .rows { display: grid; gap: var(--s-xs); }
+  .row { display: grid; grid-template-columns: 6.5em 1fr 2.6em; align-items: center; gap: var(--s-xs); }
+  .row-name { font-weight: 600; font-size: var(--step--1); }
+  .row-total { font-variant-numeric: tabular-nums; font-size: var(--step--1); color: var(--ink-soft); }
+  .bar { display: flex; gap: 2px; width: var(--w); height: 1.618rem; }
+  .seg {
+    position: relative; display: grid; place-items: center;
+    background: var(--c);
+    min-width: 0;
+  }
+  .seg:first-child { border-radius: 4px 0 0 4px; }
+  .seg:last-child { border-radius: 0 4px 4px 0; }
+  .seg-val { color: #fff; font-size: var(--step--2); font-weight: 700; font-variant-numeric: tabular-nums; text-shadow: 0 1px 1px rgb(0 0 0 / 0.25); }
+  .tip {
+    position: absolute; bottom: calc(100% + 0.382rem); left: 50%; translate: -50% 0;
+    padding: 0.2em 0.618em; border-radius: var(--r-s);
+    background: var(--ink); color: #fff; font-size: var(--step--1); white-space: nowrap;
+    opacity: 0; pointer-events: none; transition: opacity var(--t-fast);
+    z-index: 2;
+  }
+  .seg:hover .tip { opacity: 1; }
+  .seg:hover { filter: brightness(1.08); }
+  details { font-size: var(--step--1); }
+  summary { cursor: pointer; color: var(--forest); font-weight: 600; width: max-content; }
+  table { margin-top: var(--s-xs); border-collapse: collapse; font-variant-numeric: tabular-nums; }
+  th, td { padding: 0.25em 1em 0.25em 0; text-align: left; border-bottom: 1px solid var(--line); }
+  td { text-align: right; }
+  thead th:not(:first-child) { text-align: right; }
+  .total th, .total td { font-weight: 700; border-bottom: 0; }
+</style>

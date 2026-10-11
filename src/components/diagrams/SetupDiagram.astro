@@ -1,0 +1,126 @@
+---
+// Setup at a glance (rulebook figure "Setup for a four-player Standard mountain").
+// The numbers match the setup steps: 1 frames, 2 Summit, 3 START tiles, 4 bags, 5 decks, 6 your area.
+import { Image } from 'astro:assets';
+import Icon from '../Icon.astro';
+import Energy from './Energy.astro';
+import Climber from './Climber.astro';
+import { buildBoard, frameMarkup, viewBox, type Layout } from '../../scripts/board';
+import { gear } from '../../data/game';
+import { base } from '../../data/site';
+import dayCard from '../../assets/cards/day-02.png';
+import foodCard from '../../assets/cards/food-provision1-01.png';
+import ticketCard from '../../assets/cards/ticket-helicopter-lift.png';
+
+// A Standard mountain for four: 5 green, 4 teal and 3 blue frames, the Summit on the blue.
+const standard: Layout = { id: 'standard', name: 'Standard', blurb: '', rows: [[[1, 0, 5]], [[2, 0, 4]], [[3, 0, 3]]] };
+const { slots } = buildBoard(standard);
+const { frames, fixed } = frameMarkup(slots, 40, base);
+const summit = slots.find((s) => s.kind === 'summit')!;
+const start = slots.filter((s) => s.kind === 'start').sort((a, b) => a.x - b.x)[0];
+const frameCentre = slots.filter((s, i) => i % 7 === 0 && s.e === 2).sort((a, b) => b.x - a.x)[0];
+const markers = [
+  { n: 1, x: frameCentre.x, y: frameCentre.y },
+  { n: 2, x: summit.x + 48, y: summit.y - 44 },
+  { n: 3, x: start.x - 44, y: start.y + 34 },
+];
+
+const bags = [
+  { e: 1, name: 'Green' },
+  { e: 2, name: 'Teal' },
+  { e: 3, name: 'Blue' },
+  { e: 4, name: 'White' },
+];
+const decks = [
+  { src: dayCard, name: 'Day', note: '40 cards' },
+  { src: foodCard, name: 'Food', note: '49 cards' },
+  { src: ticketCard, name: 'Golden Tickets', note: '10 cards' },
+];
+---
+<figure class="diagram setup">
+  <div>
+    <p class="diagram-title">Setup at a glance</p>
+    <p>A Standard mountain for four players. The numbers match the steps.</p>
+  </div>
+
+  <div class="table">
+    <!-- 4: the bags -->
+    <div class="bags">
+      <span class="marker">4</span>
+      {bags.map((b) => (
+        <div class={`bag e${b.e}`}>
+          <span class="hex-badge">35</span>
+          <small>{b.name} bag</small>
+        </div>
+      ))}
+    </div>
+
+    <!-- 1–3: frames, Summit, START tiles -->
+    <svg class="mountain" viewBox={viewBox(slots)} role="img" aria-label="The frames laid out as a Standard mountain: five green frames, four teal and three blue, the Summit tile in the top blue frame and four START tiles along the foot.">
+      <g set:html={frames} />
+      <g set:html={fixed} />
+      {markers.map((m) => (
+        <g transform={`translate(${m.x.toFixed(1)} ${m.y.toFixed(1)})`}>
+          <circle r="17" fill="var(--gold)" stroke="#fff" stroke-width="4" />
+          <text y="7" text-anchor="middle" fill="#fff" font-size="20" font-weight="700" font-family="var(--font-body)">{m.n}</text>
+        </g>
+      ))}
+    </svg>
+
+    <!-- 5: decks and the equipment display -->
+    <div class="decks">
+      <span class="marker">5</span>
+      {decks.map((d) => (
+        <div class="deck">
+          <Image src={d.src} alt="" widths={[120, 240]} sizes="3.5rem" />
+          <span><strong>{d.name}</strong><small>{d.note}, shuffled</small></span>
+        </div>
+      ))}
+      <div class="display" aria-label="Equipment display">
+        {gear.map((g) => <span title={g.name}><Icon name={g.id} size="1.618rem" /></span>)}
+      </div>
+    </div>
+  </div>
+
+  <!-- 6: each player's area -->
+  <div class="area">
+    <span class="marker">6</span>
+    <strong>Your area</strong>
+    <span class="cards"><Energy card /><Energy card /><Energy card /><Energy card /></span>
+    <Climber />
+    <small>4 Energy cards and your climber on your START tile. No gear yet: you buy it in play.</small>
+  </div>
+</figure>
+
+<style>
+  .table { display: grid; gap: var(--s-m); align-items: center; }
+  @media (min-width: 56rem) { .table { grid-template-columns: auto 1fr 12rem; } }
+
+  .bags { display: flex; flex-wrap: wrap; gap: var(--s-xs); align-items: center; }
+  @media (min-width: 56rem) { .bags { flex-direction: column; } }
+  .bag { display: grid; justify-items: center; gap: 0.15rem; }
+  .bag .hex-badge { width: 2.618rem; font-size: var(--step--1); font-family: var(--font-body); font-weight: 700; }
+  .bag.e4 .hex-badge { background: var(--e4); }
+  .bag small { font-size: var(--step--2); color: var(--ink-soft); }
+
+  .mountain { width: 100%; height: auto; overflow: visible; }
+  .mountain :global(.hole) { fill: rgb(221 231 237 / 0.7); }
+  .mountain :global(.summit-ring) { fill: none; stroke: var(--gold); stroke-width: 4; }
+
+  .decks { display: grid; gap: var(--s-xs); align-content: start; }
+  .deck { display: grid; grid-template-columns: 3.5rem 1fr; gap: var(--s-xs); align-items: center; }
+  .deck :global(img) { width: 100%; height: auto; border-radius: 0.236rem; box-shadow: 2px 3px 0 #e8dccb, 4px 6px 0 #ddd0bd, var(--shadow); }
+  .deck span { display: grid; line-height: 1.25; font-size: var(--step--1); }
+  .deck small { color: var(--ink-soft); }
+  .display { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--s-3xs); padding-top: var(--s-2xs); color: var(--ink); }
+  .display span { display: grid; place-items: center; aspect-ratio: 1; border-radius: 50%; background: #fff; border: 1px solid var(--line); }
+
+  .area {
+    display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-xs) var(--s-s);
+    padding: var(--s-xs) var(--s-s);
+    border: 1.5px solid #c8372d; border-radius: var(--r-m);
+    background: rgb(200 55 45 / 0.04);
+  }
+  .area .cards { display: inline-flex; gap: var(--s-3xs); }
+  .area small { font-size: var(--step--1); color: var(--ink-soft); flex: 1 1 14rem; }
+</style>

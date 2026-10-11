@@ -1,0 +1,48 @@
+---
+// Magic Mountain — the page, top to bottom. Each section lives in src/components/sections/,
+// game numbers in src/data/game.ts, links in src/data/site.ts, design tokens in src/styles/global.css.
+import { getImage } from 'astro:assets';
+import Base from '../layouts/Base.astro';
+
+import SiteHeader from '../components/sections/SiteHeader.astro';
+import Hero from '../components/sections/Hero.astro';
+import Play from '../components/sections/Play.astro';
+import Rules from '../components/sections/Rules.astro';
+import Elevations from '../components/sections/Elevations.astro';
+import GoldenTickets from '../components/sections/GoldenTickets.astro';
+import Round from '../components/sections/Round.astro';
+import Engine from '../components/sections/Engine.astro';
+import Gear from '../components/sections/Gear.astro';
+import Mountains from '../components/sections/Mountains.astro';
+import Prototype from '../components/sections/Prototype.astro';
+import Publishers from '../components/sections/Publishers.astro';
+import SiteFooter from '../components/sections/SiteFooter.astro';
+
+import cover from '../assets/cover/cover-landscape.png';
+
+// The cover art is the image shown when the site is shared.
+const socialImage = await getImage({ src: cover, width: 1200, height: 630, fit: 'cover', format: 'jpg' });
+---
+<Base
+  title="Magic Mountain, a board game where you build the mountain as you climb it"
+  description="Magic Mountain is a tile-laying expedition game for 2–4 players, ages 10+. Draw sculpted terrain tiles from four bags, build the mountain turn by turn, and race to the Summit."
+  image={socialImage.src}
+>
+  <SiteHeader />
+
+  <main id="main">
+    <Hero />           <!-- title and the living map -->
+    <Play />           <!-- build a mountain from the four bags -->
+    <Rules />          <!-- how to play: setup, your turn, moving, winning -->
+    <Elevations />     <!-- four elevations and their tiles -->
+    <GoldenTickets />  <!-- holo tickets at the viewpoints -->
+    <Round />          <!-- one round, one day; Day cards -->
+    <Engine />         <!-- energy, food and the budget chart -->
+    <Gear />           <!-- eight pieces of 3D-printed gear -->
+    <Mountains />      <!-- Short, Standard, Expedition -->
+    <Prototype />      <!-- playtest photos; play it / publish it -->
+    <Publishers />     <!-- pitch and what's in the box -->
+  </main>
+
+  <SiteFooter />
+</Base>

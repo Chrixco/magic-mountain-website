@@ -1,0 +1,353 @@
+/* Magic Mountain — design tokens and base styles.
+   Every size on the page is a power of φ (1.618) or of √φ (1.272), so type, spacing,
+   image frames and column splits all share one proportion. */
+
+@layer reset, tokens, base, layout, components, utilities;
+
+@layer reset {
+  *, *::before, *::after { box-sizing: border-box; }
+  * { margin: 0; }
+  img, svg, picture { display: block; max-width: 100%; }
+  img { height: auto; }
+  button, input { font: inherit; color: inherit; }
+}
+
+@layer tokens {
+  :root {
+    color-scheme: light;
+
+    /* φ */
+    --phi: 1.618;
+    --phi-inv: 0.618;
+
+    /* Palette, sampled from the terrain tiles and the frame colours in tile_icons/README.md */
+    --paper: #fdfdfb;       /* drawing paper, page background */
+    --snow: #eef3f6;        /* snowfield, quiet panels */
+    --snow-deep: #dde7ed;   /* icy rock, quiet surfaces */
+    --cloud: #f8fafb;       /* raised surfaces */
+    --ink: #22303c;         /* rock in shadow, body text */
+    --ink-soft: #4b5c6b;    /* secondary text */
+    --line: #c3d0d9;        /* hairlines on snow */
+
+    --e1: #5e8f44;          /* green frame — meadow */
+    --e2: #3f7e76;          /* teal frame — stream */
+    --e3: #55697f;          /* blue frame — glacier */
+    --e4: #8a97a6;          /* white frame, as drawn on the badge */
+    --e4-face: #f4f7f9;     /* the white frame itself */
+    --gold: #c8842b;        /* summit */
+    --gold-soft: #f3e3c6;
+    --lava: #b5562f;        /* lava, used only for warnings */
+    --forest: #2e5b3e;      /* brand green, primary actions */
+    --forest-hover: #234832;
+    --water: #599aa4;
+
+    /* Type — base 18px, scale steps of √φ */
+    --font-display: 'Young Serif', 'Iowan Old Style', Georgia, serif;
+    --font-body: 'Figtree Variable', 'Figtree', system-ui, sans-serif;
+
+    --step--2: 0.695rem;                                           /* base / φ */
+    --step--1: 0.884rem;                                           /* base / √φ */
+    --step-0: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);             /* base */
+    --step-1: clamp(1.272rem, 1.2rem + 0.35vw, 1.431rem);          /* base · √φ */
+    --step-2: clamp(1.618rem, 1.5rem + 0.6vw, 1.82rem);            /* base · φ */
+    --step-3: clamp(2.058rem, 1.8rem + 1.2vw, 2.945rem);           /* base · φ^1.5 → φ² */
+    --step-4: clamp(2.618rem, 2rem + 3vw, 4.766rem);               /* base · φ² → φ³ */
+
+    --leading: 1.618;          /* φ */
+    --leading-tight: 1.236;    /* 2 / φ */
+    --measure: 34em;           /* Fibonacci 34 ≈ 66 characters */
+
+    /* Space — powers of φ */
+    --s-3xs: 0.236rem;
+    --s-2xs: 0.382rem;
+    --s-xs: 0.618rem;
+    --s-s: 1rem;
+    --s-m: 1.618rem;
+    --s-l: 2.618rem;
+    --s-xl: 4.236rem;
+    --s-2xl: 6.854rem;
+    --s-3xl: 11.09rem;
+
+    --page: 72rem;           /* page width */
+    --gutter: clamp(1rem, 4vw, var(--s-l));
+
+    --r-s: 0.382rem;
+    --r-m: 0.618rem;
+    --r-l: 1rem;
+
+    /* Motion — 382 / 618 ms */
+    --t-fast: 238ms;
+    --t-mid: 382ms;
+    --t-slow: 618ms;
+    --ease: cubic-bezier(0.22, 0.8, 0.24, 1);
+
+    /* Liquid glass — panels are see-through, lightly blurred, with a bright rim and a soft lens highlight,
+       so the ink sketches keep moving behind them. */
+    --glass-fill:
+      radial-gradient(120% 61.8% at 23.6% 0%, rgb(255 255 255 / 0.7), rgb(255 255 255 / 0) 61.8%),
+      linear-gradient(160deg, rgb(255 255 255 / 0.38), rgb(226 236 243 / 0.22) 61.8%, rgb(255 255 255 / 0.32));
+    --glass-blur: blur(2.5px) saturate(1.8) brightness(1.03);
+    --glass-edge: rgb(255 255 255 / 0.9);
+    --glass-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.95),
+      inset 0 -1px 1px rgb(255 255 255 / 0.4),
+      inset 0 0 0 1px rgb(91 58 36 / 0.07),
+      0 0.382rem 1.618rem -0.618rem rgb(34 48 60 / 0.22);
+    --glass-hover-fill:
+      radial-gradient(120% 61.8% at 23.6% 0%, rgb(255 255 255 / 0.9), rgb(255 255 255 / 0) 61.8%),
+      linear-gradient(160deg, rgb(255 255 255 / 0.66), rgb(226 236 243 / 0.45) 61.8%, rgb(255 255 255 / 0.55));
+
+    /* Cursors: ink magnifier with a gold lens (hotspot at the lens centre), standard cursors as fallback. */
+    --cursor-zoom-in: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cg fill='none' stroke='%23fff' stroke-width='5' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='13' cy='13' r='8'/%3E%3Cpath d='M19 19l7.5 7.5'/%3E%3C/g%3E%3Ccircle cx='13' cy='13' r='8' fill='%23f6ead6'/%3E%3Cg fill='none' stroke='%235b3a24' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='13' cy='13' r='8'/%3E%3Cpath d='M19 19l7.5 7.5'/%3E%3Cpath d='M10 13h6M13 10v6'/%3E%3C/g%3E%3C/svg%3E") 13 13, zoom-in;
+    --cursor-zoom-out: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cg fill='none' stroke='%23fff' stroke-width='5' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='13' cy='13' r='8'/%3E%3Cpath d='M19 19l7.5 7.5'/%3E%3C/g%3E%3Ccircle cx='13' cy='13' r='8' fill='%23f6ead6'/%3E%3Cg fill='none' stroke='%235b3a24' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='13' cy='13' r='8'/%3E%3Cpath d='M19 19l7.5 7.5'/%3E%3Cpath d='M10 13h6'/%3E%3C/g%3E%3C/svg%3E") 13 13, zoom-out;
+
+    --shadow: 0 0.236rem 0.618rem rgb(34 48 60 / 0.08), 0 1rem 2.618rem -0.618rem rgb(34 48 60 / 0.18);
+  }
+}
+
+@layer base {
+  html {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-body);
+    font-size: 100%;
+    -webkit-text-size-adjust: 100%;
+    scroll-padding-top: var(--s-xl);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    html { scroll-behavior: smooth; }
+  }
+  body {
+    /* transparent so the ink sketches (fixed, z-index −1) show through */
+    background: transparent;
+    font-size: var(--step-0);
+    line-height: var(--leading);
+    font-feature-settings: 'kern', 'liga', 'tnum' 0;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: clip;
+  }
+  h1, h2, h3 {
+    font-family: var(--font-display);
+    font-weight: 400;
+    line-height: var(--leading-tight);
+    text-wrap: balance;
+    letter-spacing: -0.01em;
+  }
+  h1 { font-size: var(--step-4); line-height: 1; letter-spacing: -0.02em; }
+  h2 { font-size: var(--step-3); }
+  h3 { font-size: var(--step-1); }
+  p { text-wrap: pretty; max-width: var(--measure); }
+  a { color: var(--forest); text-decoration-thickness: 0.08em; text-underline-offset: 0.2em; }
+  a:hover { color: var(--forest-hover); }
+  strong { font-weight: 650; }
+  :focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; border-radius: var(--r-s); }
+  ::selection { background: var(--gold-soft); }
+}
+
+@layer layout {
+  .ink-bg { position: fixed; inset: 0; z-index: -1; width: 100%; height: 100%; pointer-events: none; }
+  .wrap { width: min(100% - 2 * var(--gutter), var(--page)); margin-inline: auto; }
+  .section { padding-block: var(--s-2xl); }
+  .section + .section { padding-top: var(--s-xl); }
+  .stack > * + * { margin-top: var(--s-s); }
+  .stack-m > * + * { margin-top: var(--s-m); }
+
+  /* Golden section: the larger part is φ times the smaller. */
+  .golden { display: grid; gap: var(--s-l) var(--s-xl); align-items: start; }
+  @media (min-width: 56rem) {
+    .golden { grid-template-columns: 1fr 1.618fr; }
+    .golden.flip { grid-template-columns: 1.618fr 1fr; }
+  }
+
+  .lede { font-size: var(--step-1); line-height: 1.5; color: var(--ink); max-width: 30em; }
+  .muted { color: var(--ink-soft); }
+  .section-head { max-width: var(--measure); margin-bottom: var(--s-l); }
+  .section-head > * + * { margin-top: var(--s-xs); }
+}
+
+@layer components {
+  .button {
+    display: inline-flex; align-items: center; gap: var(--s-xs);
+    min-height: 2.618rem;
+    padding: var(--s-2xs) var(--s-m);
+    border-radius: 999px;
+    border: 2px solid var(--forest);
+    background: var(--forest); color: #fff;
+    font-weight: 600; font-size: var(--step-0); line-height: 1.2;
+    text-decoration: none; cursor: pointer;
+    transition: background var(--t-fast) var(--ease), transform var(--t-fast) var(--ease), border-color var(--t-fast);
+  }
+  .button:hover { background: var(--forest-hover); border-color: var(--forest-hover); color: #fff; }
+  .button:active { transform: translateY(1px); }
+  .button.ghost { background: transparent; color: var(--forest); }
+  .button.ghost:hover { background: rgb(46 91 62 / 0.08); color: var(--forest-hover); }
+  .button .icon { flex: none; }
+  .button:disabled { opacity: 0.382; cursor: not-allowed; transform: none; }
+
+  /* Liquid glass panel: see-through, lightly blurred, bright rim (tokens in :root). */
+  .glass {
+    border: 1px solid var(--glass-edge);
+    background: var(--glass-fill);
+    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: var(--glass-blur);
+    box-shadow: var(--glass-shadow);
+  }
+
+  /* Rule diagrams (src/components/diagrams): a light card with a title, numbered markers and arrows */
+  .diagram {
+    display: grid; gap: var(--s-s);
+    padding: var(--s-m);
+    border-radius: var(--r-m);
+    background: rgb(255 255 255 / 0.62);
+    border: 1px solid var(--line);
+  }
+  .diagram-title { font-family: var(--font-display); font-size: var(--step-1); line-height: 1.2; }
+  .diagram-title + p { font-size: var(--step--1); color: var(--ink-soft); margin-top: var(--s-3xs); }
+  .marker {
+    display: inline-grid; place-items: center; flex: none;
+    width: 1.618rem; height: 1.618rem; border-radius: 50%;
+    background: var(--gold); color: #fff;
+    font: 700 var(--step--1) / 1 var(--font-body);
+    box-shadow: 0 0 0 2px #fff;
+  }
+  .arrow { color: var(--ink-soft); font-size: var(--step-1); line-height: 1; }
+
+  /* A row of buttons */
+  .actions { display: flex; flex-wrap: wrap; gap: var(--s-xs); }
+
+  .hex-badge {
+    display: inline-grid; place-items: center;
+    width: 2.618rem; aspect-ratio: 1.1547;
+    clip-path: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%);
+    font-family: var(--font-display); color: #fff; font-size: var(--step-1); line-height: 1;
+  }
+  .e1 { --c: var(--e1); }
+  .e2 { --c: var(--e2); }
+  .e3 { --c: var(--e3); }
+  .e4 { --c: var(--e4); }
+  .hex-badge { background: var(--c, var(--gold)); }
+
+  /* Pointer tilt (src/scripts/tilt.ts): physical objects lean toward the pointer and catch the light. */
+  [data-tilt] {
+    --rx: 0deg; --ry: 0deg; --mx: 50%; --my: 50%; --on: 0;
+    transform: perspective(900px) rotateX(var(--rx)) rotateY(var(--ry));
+    transition: transform var(--t-slow) var(--ease);
+  }
+  [data-tilt].tilting { transition: transform 80ms linear; }
+  [data-tilt='card'] { position: relative; overflow: hidden; cursor: grab; }
+  [data-zoom], [data-zoom] * { cursor: var(--cursor-zoom-in); }
+
+  .tilt-glare {
+    position: absolute; inset: 0; pointer-events: none; border-radius: inherit;
+    background: radial-gradient(circle at var(--mx) var(--my), rgb(255 255 255 / 0.5), rgb(255 255 255 / 0.1) 23.6%, transparent 61.8%);
+    mix-blend-mode: soft-light;
+    opacity: var(--on);
+    transition: opacity var(--t-slow) var(--ease);
+  }
+
+  .gear-row { display: inline-flex; flex-wrap: wrap; gap: var(--s-2xs); align-items: center; }
+  .gear-chip {
+    display: inline-flex; align-items: center; gap: var(--s-3xs);
+    padding: 0.15em 0.618em 0.15em 0.382em;
+    border: 1px solid var(--glass-edge); border-radius: 999px; background: var(--glass-fill);
+    -webkit-backdrop-filter: var(--glass-blur); backdrop-filter: var(--glass-blur); box-shadow: var(--glass-shadow);
+    font-size: var(--step--1); line-height: 1.4; white-space: nowrap;
+  }
+}
+
+@layer utilities {
+  .visually-hidden {
+    position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+  }
+}
+
+/* Card viewer (src/scripts/cardZoom.ts). Outside the layers on purpose: the enlarged copy must win over the
+   positioning the card has in its section (fan, food row). */
+.zoom-backdrop {
+  position: fixed; inset: 0; z-index: 50;
+  cursor: var(--cursor-zoom-out);
+  background: rgb(253 253 251 / 0.5);
+  -webkit-backdrop-filter: blur(8px) saturate(1.2);
+  backdrop-filter: blur(8px) saturate(1.2);
+}
+.zoom-layer {
+  position: fixed; inset: 0; z-index: 51;
+  display: grid; place-items: center;
+  pointer-events: none;
+  outline: none;
+}
+.zoom-holder { pointer-events: auto; border-radius: var(--r-m); transform-origin: center; will-change: transform; perspective: 1600px; }
+
+/* the enlarged card: leans toward the pointer, turns over to show the back */
+.zoom-tilt {
+  width: 100%; height: 100%;
+  transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+  transform-style: preserve-3d;
+  transition: transform 618ms var(--ease);
+  cursor: grab;
+}
+.zoom-tilt.tilting { transition: transform 80ms linear; }
+.zoom-flipper { position: relative; width: 100%; height: 100%; transform-style: preserve-3d; }
+.zoom-face {
+  position: absolute !important; inset: 0 !important;
+  -webkit-backface-visibility: hidden; backface-visibility: hidden;
+  border-radius: var(--r-m);
+  overflow: hidden;
+}
+.zoom-flipper > .zoom-copy {
+  width: 100% !important; height: 100% !important;
+  rotate: none !important; translate: none !important; margin: 0 !important; top: 0 !important; left: 0 !important;
+  visibility: visible !important;
+  box-shadow: none !important;
+}
+.zoom-flipper > .zoom-copy img { width: 100%; height: 100%; object-fit: contain; }
+
+/* the back: shared card art with a light gloss that follows the pointer (no holo) */
+.zoom-back {
+  transform: rotateY(180deg);
+  background: #3c5a3a;
+  container-type: size;
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.25);
+}
+.zoom-back img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; user-select: none; }
+.zoom-back.landscape img {
+  inset: auto; left: 50%; top: 50%;
+  width: 100cqh; height: 100cqw;
+  transform: translate(-50%, -50%) rotate(90deg);
+}
+.back-gloss {
+  position: absolute; inset: 0; pointer-events: none;
+  background:
+    radial-gradient(circle at var(--mx, 50%) var(--my, 50%), rgb(255 255 255 / 0.5), rgb(255 255 255 / 0.08) 23.6%, transparent 61.8%),
+    linear-gradient(115deg, transparent 38.2%, rgb(255 255 255 / 0.22) 50%, transparent 61.8%);
+  background-size: 100% 100%, 260% 100%;
+  background-position: 0 0, var(--mx, 50%) 0;
+  mix-blend-mode: screen;
+  opacity: calc(0.3 + var(--on, 0) * 0.45);
+  transition: opacity 618ms var(--ease);
+}
+
+.zoom-bar {
+  position: fixed; left: 50%; bottom: var(--s-l); transform: translateX(-50%);
+  display: flex; flex-direction: column; align-items: center; gap: var(--s-xs);
+  pointer-events: auto;
+}
+.zoom-flip {
+  display: inline-flex; align-items: center; gap: var(--s-2xs);
+  min-height: 2.618rem; padding: var(--s-2xs) var(--s-m);
+  border: 1px solid var(--glass-edge); border-radius: 999px;
+  background: var(--glass-fill);
+  -webkit-backdrop-filter: var(--glass-blur); backdrop-filter: var(--glass-blur);
+  box-shadow: var(--glass-shadow);
+  font: 600 var(--step-0) / 1.2 var(--font-body); color: var(--ink);
+  cursor: pointer;
+}
+.zoom-flip:hover { background: var(--glass-hover-fill); color: var(--forest); }
+.zoom-flip svg { transition: transform 618ms var(--ease); }
+.zoom-flip:hover svg { transform: rotate(180deg); }
+.zoom-hint {
+  pointer-events: none; white-space: nowrap; margin: 0;
+  font-size: var(--step--1); color: var(--ink-soft);
+}

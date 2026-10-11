@@ -1,0 +1,120 @@
+---
+// One round = one day (rulebook figure "One round of Magic Mountain"): the Day card for everyone,
+// then each player's turn: refresh, act, end.
+import { Image } from 'astro:assets';
+import Energy from './Energy.astro';
+import Climber from './Climber.astro';
+import dayCard from '../../assets/cards/day-12.png';
+import prov1 from '../../assets/cards/food-provision1-01.png';
+import prov2 from '../../assets/cards/food-provision2-01.png';
+
+const players = [
+  { n: 1, color: '#c8372d' },
+  { n: 2, color: '#2864b4' },
+  { n: 3, color: '#e8b214' },
+  { n: 4, color: '#7846a0' },
+];
+---
+<figure class="diagram round">
+  <div>
+    <p class="diagram-title">One round is one day</p>
+    <p>Reveal a Day card, then every climber takes one full turn.</p>
+  </div>
+
+  <div class="day">
+    <div class="day-card">
+      <Image src={dayCard} alt="A Day card: a sudden blizzard; no movement this round unless you are on Elevation 1–2." widths={[200, 400]} sizes="7rem" />
+      <span><span class="marker">1</span> New day <small>weather for everyone</small></span>
+    </div>
+    <span class="arrow" aria-hidden="true">→</span>
+    <ol class="players" aria-label="Then each player in turn, clockwise">
+      {players.map((p) => <li><Climber color={p.color} size="1.272rem" /><small>Player {p.n}</small></li>)}
+    </ol>
+  </div>
+
+  <ol class="turn" aria-label="Your turn">
+    <li>
+      <p class="step"><span class="marker">2</span> Refresh</p>
+      <p class="sum">
+        <span class="cards"><Energy card /><Energy card /><Energy card /><Energy card /></span>
+        <span class="plus">+</span>
+        <span class="provisions">
+          <Image src={prov1} alt="Provision +1" widths={[120]} sizes="2rem" />
+          <Image src={prov2} alt="Provision +2" widths={[120]} sizes="2rem" />
+        </span>
+      </p>
+      <p class="total">4 + 1 + 2 = <Energy n={7} /></p>
+      <small>Energy is never saved or traded.</small>
+    </li>
+    <li class="act">
+      <p class="step"><span class="marker">3</span> Act, in any order</p>
+      <ul>
+        <li><span>Buy terrain</span><Energy n={2} /><em>once</em></li>
+        <li><span>Buy equipment</span><span class="price">price</span><em>once</em></li>
+        <li><span>Buy food</span><Energy n={2} /><em>once</em></li>
+        <li><span>Move</span><span class="price">per tile</span></li>
+        <li><span>Photograph</span><Energy n={1} /></li>
+        <li><span>Trade</span><Energy n={0} /></li>
+      </ul>
+    </li>
+    <li>
+      <p class="step"><span class="marker">4</span> End of turn</p>
+      <p class="sum"><span class="cards spent"><Energy card /><Energy card /><Energy card /><Energy card /></span></p>
+      <small>Spent cards are recycled. Unused energy is lost. Play passes to the left.</small>
+      <p class="goal">Reach the Summit and the game ends at once.</p>
+    </li>
+  </ol>
+</figure>
+
+<style>
+  .day { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-s); }
+  .day-card { display: flex; align-items: center; gap: var(--s-s); }
+  .day-card :global(img) { width: 7rem; height: auto; border-radius: 0.236rem; box-shadow: var(--shadow); rotate: -2deg; }
+  .day-card > span { display: grid; gap: 0.2rem; font-weight: 650; }
+  .day-card > span .marker { margin-bottom: 0.2rem; }
+  .day-card small { font-weight: 400; color: var(--ink-soft); font-size: var(--step--1); }
+  .players { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: var(--s-xs); }
+  .players li {
+    display: grid; justify-items: center; gap: 0.15rem;
+    padding: var(--s-2xs) var(--s-xs); border-radius: var(--r-s);
+    background: #fff; border: 1px solid var(--line);
+  }
+  .players small { font-size: var(--step--2); color: var(--ink-soft); white-space: nowrap; }
+
+  .turn { list-style: none; padding: 0; display: grid; gap: var(--s-xs); counter-reset: none; }
+  @media (min-width: 56rem) { .turn { grid-template-columns: 1fr 1.618fr 1fr; } }
+  .turn > li {
+    position: relative;
+    display: grid; gap: var(--s-2xs); align-content: start;
+    padding: var(--s-s);
+    border-radius: var(--r-m);
+    background: #fff; border: 1px solid var(--line);
+  }
+  @media (min-width: 56rem) {
+    .turn > li + li::before {
+      content: '→'; position: absolute; left: calc(-1 * var(--s-xs)); top: 50%; translate: -50% -50%;
+      color: var(--ink-soft); font-size: var(--step-0);
+    }
+  }
+  .step { display: flex; align-items: center; gap: var(--s-2xs); font-weight: 700; color: var(--forest); }
+  .step .marker { background: var(--forest); }
+  .sum { display: flex; align-items: center; flex-wrap: wrap; gap: var(--s-2xs); }
+  .cards { display: inline-flex; gap: 0.2rem; }
+  .cards.spent { opacity: 0.45; rotate: -4deg; }
+  .plus { font-weight: 700; color: var(--ink-soft); }
+  .provisions { display: inline-flex; gap: 0.2rem; }
+  .provisions :global(img) { width: 2rem; height: auto; border-radius: 0.15rem; box-shadow: 0 1px 3px rgb(34 48 60 / 0.3); }
+  .total { font-weight: 650; }
+  .turn small { font-size: var(--step--1); color: var(--ink-soft); }
+
+  .act ul { list-style: none; padding: 0; display: grid; font-size: var(--step--1); }
+  .act ul li { display: grid; grid-template-columns: 1fr 4.5rem 2.618rem; align-items: center; gap: var(--s-2xs); padding-block: 0.3rem; border-bottom: 1px solid var(--line); }
+  .act ul li:last-child { border-bottom: 0; }
+  .act ul li span:first-child { font-weight: 650; }
+  .price { color: var(--gold); font-weight: 700; }
+  .act em {
+    font-style: normal; font-size: var(--step--2); font-weight: 700; text-align: center;
+    padding: 0.1em 0.5em; border-radius: 999px; background: var(--ink-soft); color: #fff;
+  }
+  .goal { font-weight: 700; color: var(--forest); font-size: var(--step--1); margin-top: var(--s-2xs); }
+</style>
