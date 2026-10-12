@@ -8,6 +8,9 @@ export type Elevation = 1 | 2 | 3 | 4;
 
 export const PHI = 1.618;
 
+/** The official name, as on the rulebook cover. */
+export const title = { name: 'Magic Mountain', subtitle: 'Reach for the Peak', full: 'Magic Mountain: Reach for the Peak' };
+
 export const facts = {
   players: '2–4 players',
   age: 'Ages 10+',

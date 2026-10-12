@@ -1,10 +1,10 @@
 ---
-import { contact } from '../../data/game';
+import { contact, title } from '../../data/game';
 import { links } from '../../data/site';
 ---
 <footer class="site-footer">
   <div class="wrap footer-inner">
-    <p><strong>Magic Mountain</strong> is designed, written and illustrated by {contact.designer}.</p>
+    <p><strong>{title.full}</strong> is designed, written and illustrated by {contact.designer}.</p>
     <p><a href={links.email}>{contact.email}</a></p>
   </div>
 </footer>

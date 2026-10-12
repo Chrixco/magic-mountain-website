@@ -1,13 +1,13 @@
 ---
 // Hero: the title in the left 38.2%, a living map of a mountain drawing itself in the right 61.8%.
 import HeroMap from '../HeroMap.astro';
-import { facts } from '../../data/game';
+import { facts, title } from '../../data/game';
 import { links } from '../../data/site';
 ---
 <section class="hero" id="top">
   <HeroMap />
   <div class="hero-copy wrap">
-    <h1>Magic Mountain</h1>
+    <h1>{title.name}<span class="subtitle">{title.subtitle}</span></h1>
     <p class="tagline">Build the mountain. Master the climb.</p>
     <ul class="facts">
       <li class="glass">{facts.players}</li>
@@ -38,6 +38,13 @@ import { links } from '../../data/site';
     font-size: clamp(2.618rem, 1rem + 5.2vw, 6.854rem);
     color: var(--ink);
     animation: rise var(--t-slow) var(--ease) both;
+  }
+  .subtitle {
+    display: block;
+    margin-top: var(--s-2xs);
+    font-family: var(--font-body); font-size: var(--step-1); font-weight: 600;
+    letter-spacing: 0.04em; line-height: 1.2;
+    color: var(--gold);
   }
   .tagline {
     font-family: var(--font-display); font-size: var(--step-2); line-height: var(--leading-tight);

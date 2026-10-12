@@ -1,6 +1,6 @@
 ---
 // For publishers: the pitch, the contact, and what is in the box.
-import { components } from '../../data/game';
+import { components, title } from '../../data/game';
 import { links } from '../../data/site';
 
 const pitch = [
@@ -16,9 +16,9 @@ const pitch = [
   <div class="wrap golden">
     <div class="stack-m">
       <h2>For publishers</h2>
-      <p class="lede">A family-weight expedition game with a physical board that grows on the table.</p>
+      <p class="lede"><strong>{title.full}</strong>: a family-weight expedition game with a physical board that grows on the table.</p>
       <ul class="pitch">
-        {pitch.map(([title, text]) => <li><strong>{title}</strong> {text}</li>)}
+        {pitch.map(([lead, text]) => <li><strong>{lead}</strong> {text}</li>)}
       </ul>
       <div class="actions">
         <a class="button" href={links.emailDesigner}>Email the designer</a>
