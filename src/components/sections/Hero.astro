@@ -2,7 +2,7 @@
 // Hero: the title in the left 38.2%, a living map of a mountain drawing itself in the right 61.8%.
 import HeroMap from '../HeroMap.astro';
 import { facts, title } from '../../data/game';
-import { links } from '../../data/site';
+import { links, video } from '../../data/site';
 ---
 <section class="hero" id="top">
   <HeroMap />
@@ -16,12 +16,19 @@ import { links } from '../../data/site';
     </ul>
     <div class="actions">
       <a class="button" href="#play">Build a mountain</a>
-      <a class="button ghost" href={links.rulebook} download>Download the rulebook</a>
+      <a class="button ghost" href="#video">
+        <svg viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z" fill="currentColor"/></svg>
+        Watch how to play · {video.length}
+      </a>
     </div>
+    <p class="rulebook"><a href={links.rulebook} download>Download the rulebook (PDF)</a></p>
   </div>
 </section>
 
 <style>
+  .rulebook { margin-top: var(--s-xs); font-size: var(--step--1); }
+  .rulebook a { color: var(--ink-soft); text-underline-offset: 0.2em; }
+  .rulebook a:hover { color: var(--forest); }
   .hero {
     position: relative;
     display: flex; align-items: center;

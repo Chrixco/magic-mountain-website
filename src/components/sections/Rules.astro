@@ -12,7 +12,7 @@ import TurnExample from '../diagrams/TurnExample.astro';
 import MoveRules from '../diagrams/MoveRules.astro';
 import WinDiagram from '../diagrams/WinDiagram.astro';
 import { elevations, mountains } from '../../data/game';
-import { links } from '../../data/site';
+import { links, video } from '../../data/site';
 
 const tabs = [
   { id: 'setup', label: 'Setup' },
@@ -27,6 +27,14 @@ const tabs = [
       <h2>How to play</h2>
       <p class="lede">Build the mountain as you climb it. First on the Summit wins.</p>
     </div>
+
+    <figure class="video glass" id="video">
+      <video controls playsinline preload="none" poster={video.poster} width="1920" height="1080">
+        <source src={video.src} type="video/mp4" />
+        <a href={video.src}>Download the how-to-play video</a>
+      </video>
+      <figcaption>The whole game in {video.length}, with voice-over and subtitles.</figcaption>
+    </figure>
 
     <div class="rules" data-rules>
       <div class="tabs" role="tablist" aria-label="How to play" hidden>
@@ -86,6 +94,10 @@ const tabs = [
 </section>
 
 <style>
+  .video { margin: 0 0 var(--s-l); padding: var(--s-xs); border-radius: var(--r-l); max-width: 54rem; }
+  .video video { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; border-radius: var(--r-m); background: var(--paper); }
+  .video figcaption { padding: var(--s-xs) var(--s-2xs) var(--s-3xs); font-size: var(--step--1); color: var(--ink-soft); }
+
   .rules { display: grid; gap: var(--s-s); }
 
   /* Tabs: four numbered steps of one sequence */

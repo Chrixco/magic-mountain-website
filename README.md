@@ -35,6 +35,7 @@ npm run preview    # serves dist/
 | `src/assets/` | Cover art, playtest photos and cards. Astro resizes them to WebP at build time |
 | `public/tiles/` | Terrain tiles (WebP, 240 px) used by the board |
 | `public/magic-mountain-rulebook.pdf` | The rulebook visitors can download |
+| `public/video/` | The how-to-play video (from `Magic Mountain/Video`, re-encoded for the web) and its poster frame |
 
 ## Golden ratio
 
@@ -58,6 +59,9 @@ Cards keep their printed proportions (63.5 × 88.9 mm) so the art is never cropp
 - **Cards, photos, cover**: replace the file in `src/assets/` with the same name. Photos from an iPhone
   (HEIC) need converting first: `sips -s format jpeg -Z 2800 IMG.HEIC --out src/assets/photos/playtest-1.jpg`.
 - **Rulebook**: replace `public/magic-mountain-rulebook.pdf`.
+- **Video**: render it in `Magic Mountain/Video` (`npm run render`), then re-encode it for the web from that folder:
+  `npx remotion ffmpeg -i out/magic-mountain-how-to-play.mp4 -c:v libx264 -preset slow -crf 27 -pix_fmt yuv420p -c:a aac -b:a 112k -movflags +faststart ../Website/public/video/how-to-play.mp4`
+  (about 16 MB instead of 50). The poster is the title frame at 9 s, saved as `public/video/how-to-play-poster.webp`.
 
 ## Rulebook art
 
