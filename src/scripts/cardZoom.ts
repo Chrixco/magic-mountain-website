@@ -2,7 +2,8 @@
 // glides back to its place. Works for any element marked data-zoom (Day, Food and Golden Ticket cards).
 //
 // The enlarged card is two-sided: the front keeps its own light (holo foil on Golden Tickets, a soft glare on
-// the others), the back is the shared card back with a light gloss. It only turns over when asked: the
+// the others), the back is the card back with a light gloss: the portrait back for Food cards and Golden Tickets,
+// the landscape back (its artwork drawn sideways, so it reads upright on a landscape card) for Day cards. It only turns over when asked: the
 // "Flip card" button (or the F key).
 //
 // Technique: the enlarged copy is laid out at its final size and animated from the original card's
@@ -12,7 +13,9 @@ const OPEN_EASE = 'cubic-bezier(.22, 1, .36, 1)'; // glides in and settles, no b
 const CLOSE_EASE = 'cubic-bezier(.45, 0, .2, 1)';
 const FLIP_EASE = 'cubic-bezier(.65, 0, .35, 1)'; // even turn: eases in and out, steady in the middle
 const OPEN_TIME = 1100;
-const BACK = `${import.meta.env.BASE_URL.replace(/\/?$/, '/')}cards/card-back.webp`;
+const CARDS = `${import.meta.env.BASE_URL.replace(/\/?$/, '/')}cards/`;
+const BACK = `${CARDS}card-back.webp`;
+const BACK_LANDSCAPE = `${CARDS}card-back-landscape.webp`; // Final Design: 20261012_Back horizontal
 
 /** Rotation of an element or its close ancestors, from the CSS `rotate` property or a 2D transform. */
 function restingAngle(el: Element): number {
@@ -42,7 +45,7 @@ export function initCardZoom() {
   const reduce = matchMedia('(prefers-reduced-motion: reduce)');
   let open: Open | null = null;
   let busy = false;
-  new Image().src = BACK; // ready before the first flip
+  for (const src of [BACK, BACK_LANDSCAPE]) new Image().src = src; // ready before the first flip
 
   function geometry(source: HTMLElement) {
     const r = source.getBoundingClientRect();
@@ -96,10 +99,10 @@ export function initCardZoom() {
     const img = front.querySelector('img');
     if (img) { img.sizes = `${Math.ceil(g.w)}px`; img.loading = 'eager'; }
 
-    // Back: the shared card back (turned sideways for landscape cards) with a light gloss, no foil.
+    // Back: the card back for this shape (the landscape art is stored sideways and turned upright here), with a light gloss, no foil.
     const back = document.createElement('div');
     back.className = `zoom-face zoom-back${landscape ? ' landscape' : ''}`;
-    back.innerHTML = `<img src="${BACK}" alt="" draggable="false"><span class="back-gloss" aria-hidden="true"></span>`;
+    back.innerHTML = `<img src="${landscape ? BACK_LANDSCAPE : BACK}" alt="" draggable="false"><span class="back-gloss" aria-hidden="true"></span>`;
 
     flipper.append(front, back);
     tilt.append(flipper);
