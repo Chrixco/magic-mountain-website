@@ -139,7 +139,7 @@ export const goldenTickets = [
   { name: 'Weather Charm', text: 'Ignore today’s Day card for the whole round.' },
   { name: 'Cartographer’s Map', text: 'Look at four tiles from a bag and place two for free.' },
   { name: 'Hidden Energy Cache', text: 'Gain 6 Energy this turn.' },
-  { name: 'Master Negotiator', text: 'Force one food trade with any player.' },
+  { name: 'Master Negotiator', text: 'Force one food trade with any player, even in Free-for-All.' },
   { name: 'Expedition Backpack', text: 'Keep four provisions in play instead of three.' },
   { name: 'Guardian Spirit', text: 'Cancel any negative effect aimed at you.' },
   { name: 'Summit Permit', text: 'Step onto the Summit with one item fewer.' },

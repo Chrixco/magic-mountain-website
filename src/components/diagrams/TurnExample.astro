@@ -1,20 +1,26 @@
 ---
-// Lena's turn (rulebook "Example of Play"), told as a strip: 5 Energy in, spent piece by piece to 0.
+// Lena's turn (rulebook v2 "Example of Play"), told as a strip: her cards refill her to 5 Energy, spent piece by piece to 0.
+// Each step shows the full price of the tile's elevation (rulebook §6) and the Day card's discount.
 import { Image } from 'astro:assets';
 import Energy from './Energy.astro';
 import ActionIcon from './ActionIcon.astro';
-import { terrain, tileSrc } from '../../data/game';
+import { terrain, tileSrc, elevations } from '../../data/game';
 import { asset } from '../../data/site';
 import baseCamp from '../../assets/cards/base-camp.png';
 import prov1 from '../../assets/cards/food-provision1-01.png';
 
 const tile = (e: number, id: string) => asset(tileSrc(terrain.find((t) => t.elevation === e && t.id === id)!));
+// Today's Day card: movement on Elevations 1–2 costs 1 Energy less.
+const price = (e: number) => elevations.find((x) => x.level === e)!.cost;
+const DISCOUNT = 1;
 const spends = [
-  { kind: 'terrain', label: 'Buy terrain', cost: 2 },
-  { kind: 'tile', src: tile(1, 'snow'), label: 'Snow, Elevation 1', cost: 1 },
-  { kind: 'tile', src: tile(1, 'snow'), label: 'Snow, Elevation 1', cost: 1 },
-  { kind: 'tile', src: tile(2, 'clear'), label: 'Clear, Elevation 2', cost: 1 },
+  { kind: 'terrain', label: 'Buy terrain', cost: 2, calc: '2 tiles' },
+  { kind: 'tile', src: tile(1, 'snow'), label: 'Snow, Elevation 1', cost: price(1) - DISCOUNT, calc: `${price(1)} − ${DISCOUNT}, Snow Boots` },
+  { kind: 'tile', src: tile(1, 'snow'), label: 'Snow, Elevation 1', cost: price(1) - DISCOUNT, calc: `${price(1)} − ${DISCOUNT}, Snow Boots` },
+  { kind: 'tile', src: tile(2, 'clear'), label: 'Clear, Elevation 2', cost: price(2) - DISCOUNT, calc: `${price(2)} − ${DISCOUNT}` },
 ] as const;
+const colours = ['green', 'teal', 'blue', 'white'];
+const prices = [...elevations].sort((a, b) => a.level - b.level);
 
 // energy left after each spend, starting from 5
 let left = 5;
@@ -23,11 +29,17 @@ const after = spends.map((s) => (left -= s.cost));
 <figure class="diagram example">
   <div>
     <p class="diagram-title">Example: Lena’s turn</p>
-    <p>Today’s Day card: moving on Elevations 1–2 costs 1 less.</p>
+    <p>Today’s Day card: moving on Elevations 1–2 costs 1 Energy less.</p>
+    <p class="prices">
+      Entering a tile costs
+      {prices.map((p, i) => <span><b class={`dot e${p.level}`} aria-hidden="true"></b>{colours[i]} {p.cost}</span>)}
+      <span>Summit 6 / 8 / 10</span>
+    </p>
   </div>
 
   <div class="strip">
     <div class="income">
+      <span class="refill">Start of turn</span>
       <Image src={baseCamp} alt="Base Camp, +4" widths={[120, 240]} sizes="2.618rem" />
       <Image src={prov1} alt="Provision, +1" widths={[120, 240]} sizes="2.618rem" />
       <span class="eq">= <Energy n={5} /></span>
@@ -40,13 +52,14 @@ const after = spends.map((s) => (left -= s.cost));
           : <img class="pic" src={s.src} alt="" width="120" height="104" loading="lazy" />}
         <small>{s.label}</small>
         <span class="cost">−{s.cost}</span>
+        <small class="calc">{s.calc}</small>
         <span class="pips" aria-label={`${after[i]} Energy left`}>
           {Array.from({ length: 5 }, (_, k) => <i class={k < after[i] ? 'on' : ''} />)}
         </span>
       </div>
     ))}
   </div>
-  <figcaption>5 Energy in, 0 left: terrain for 2, then three steps for 1 each (in her Snow Boots).</figcaption>
+  <figcaption>Her cards refill her to 5 Energy at the start of her turn. Terrain costs 2. Each step costs 2, minus 1 for today’s weather. 0 left, and nothing carries over.</figcaption>
 </figure>
 
 <style>
@@ -54,6 +67,12 @@ const after = spends.map((s) => (left -= s.cost));
   .income { display: flex; align-items: center; gap: 0.3rem; padding-right: var(--s-2xs); }
   .income :global(img) { width: 2.618rem; height: auto; border-radius: 0.15rem; box-shadow: 0 1px 4px rgb(34 48 60 / 0.3); }
   .eq { font-size: var(--step-1); font-weight: 700; margin-left: 0.2rem; }
+  .refill { font-size: var(--step--2); font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-soft); margin-right: 0.2rem; }
+  .prices { display: flex; flex-wrap: wrap; align-items: center; gap: 0.2rem 0.75rem; font-size: var(--step--1); color: var(--ink-soft); margin-top: var(--s-3xs); }
+  .prices span { display: inline-flex; align-items: center; gap: 0.3rem; font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums; }
+  .dot { width: 0.7rem; height: 0.7rem; border-radius: 50%; background: var(--c); }
+  .dot.e4 { background: var(--e4-face); box-shadow: inset 0 0 0 1.5px var(--e4-edge); }
+  .calc { font-size: var(--step--2); color: var(--ink-soft); }
 
   .spend {
     position: relative;

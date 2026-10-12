@@ -1,6 +1,6 @@
 ---
 // One round = one day (rulebook figure "One round of Magic Mountain"):
-// the Day card for everyone, then each player's turn: collect energy, act, end.
+// the Day card for everyone, then each player's turn: refill energy from your cards, act, end.
 import { Image } from 'astro:assets';
 import Energy from './Energy.astro';
 import Climber from './Climber.astro';
@@ -18,7 +18,7 @@ const actions = [
   { icon: 'food', name: 'Buy food', cost: 2, note: 'blind draw', once: true },
   { icon: 'move', name: 'Move', cost: 'per tile', note: 'as far as you can', once: false },
   { icon: 'photo', name: 'Photograph', cost: 1, note: 'on a viewpoint', once: false },
-  { icon: 'trade', name: 'Trade', cost: 0, note: 'food cards', once: false },
+  { icon: 'trade', name: 'Trade', cost: 0, note: 'teams only, with your partner', once: false },
 ] as const;
 ---
 <figure class="diagram round">
@@ -36,7 +36,7 @@ const actions = [
 
   <ol class="turn" aria-label="Your turn">
     <li>
-      <p class="step"><span class="marker">2</span> Collect energy</p>
+      <p class="step"><span class="marker">2</span> Refill energy</p>
       <p class="sum">
         <Image class="card" src={baseCamp} alt="Base Camp, +4" widths={[120, 240]} sizes="3rem" />
         <span class="op">+</span>
@@ -44,6 +44,7 @@ const actions = [
         <Image class="card" src={prov2} alt="Provision +2" widths={[120, 240]} sizes="3rem" />
       </p>
       <p class="total">4 + 1 + 2 = <Energy n={7} /></p>
+      <small>Your cards refill you at the start of every turn: Base Camp plus provisions in play.</small>
     </li>
 
     <li class="act">
