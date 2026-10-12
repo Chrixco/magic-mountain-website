@@ -1,35 +1,36 @@
 ---
-// One round = one day (rulebook figure "One round of Magic Mountain"): the Day card for everyone,
-// then each player's turn: refresh, act, end.
+// One round = one day (rulebook figure "One round of Magic Mountain"):
+// the Day card for everyone, then each player's turn: collect energy, act, end.
 import { Image } from 'astro:assets';
 import Energy from './Energy.astro';
 import Climber from './Climber.astro';
+import ActionIcon from './ActionIcon.astro';
 import dayCard from '../../assets/cards/day-12.png';
 import baseCamp from '../../assets/cards/base-camp.png';
 import prov1 from '../../assets/cards/food-provision1-01.png';
 import prov2 from '../../assets/cards/food-provision2-01.png';
 
-const players = [
-  { n: 1, color: '#c8372d' },
-  { n: 2, color: '#2864b4' },
-  { n: 3, color: '#e8b214' },
-  { n: 4, color: '#7846a0' },
-];
+const players = ['#c8372d', '#2864b4', '#e8b214', '#7846a0'];
+
+const actions = [
+  { icon: 'terrain', name: 'Buy terrain', cost: 2, note: '2 tiles', once: true },
+  { icon: 'gear', name: 'Buy gear', cost: 'price', note: '1 piece', once: true },
+  { icon: 'food', name: 'Buy food', cost: 2, note: 'blind draw', once: true },
+  { icon: 'move', name: 'Move', cost: 'per tile', note: 'as far as you can', once: false },
+  { icon: 'photo', name: 'Photograph', cost: 1, note: 'on a viewpoint', once: false },
+  { icon: 'trade', name: 'Trade', cost: 0, note: 'food cards', once: false },
+] as const;
 ---
 <figure class="diagram round">
-  <div>
-    <p class="diagram-title">One round is one day</p>
-    <p>Reveal a Day card, then every climber takes one full turn.</p>
-  </div>
+  <p class="diagram-title">One round is one day</p>
 
   <div class="day">
-    <div class="day-card">
-      <Image src={dayCard} alt="A Day card: a sudden blizzard; no movement this round unless you are on Elevation 1–2." widths={[200, 400]} sizes="7rem" />
-      <span><span class="marker">1</span> New day <small>weather for everyone</small></span>
-    </div>
+    <span class="marker">1</span>
+    <Image src={dayCard} alt="A Day card: a sudden blizzard" widths={[200, 400]} sizes="6rem" />
+    <span class="label">New day<small>same weather for all</small></span>
     <span class="arrow" aria-hidden="true">→</span>
-    <ol class="players" aria-label="Then each player in turn, clockwise">
-      {players.map((p) => <li><Climber color={p.color} size="1.272rem" /><small>Player {p.n}</small></li>)}
+    <ol class="players" aria-label="then each player in turn, clockwise">
+      {players.map((c) => <li><Climber color={c} size="1.272rem" /></li>)}
     </ol>
   </div>
 
@@ -37,83 +38,87 @@ const players = [
     <li>
       <p class="step"><span class="marker">2</span> Collect energy</p>
       <p class="sum">
-        <Image class="base-camp" src={baseCamp} alt="Base Camp +4" widths={[120, 240]} sizes="2.618rem" />
-        <span class="plus">+</span>
-        <span class="provisions">
-          <Image src={prov1} alt="Provision +1" widths={[120]} sizes="2rem" />
-          <Image src={prov2} alt="Provision +2" widths={[120]} sizes="2rem" />
-        </span>
+        <Image class="card" src={baseCamp} alt="Base Camp, +4" widths={[120, 240]} sizes="3rem" />
+        <span class="op">+</span>
+        <Image class="card" src={prov1} alt="Provision +1" widths={[120, 240]} sizes="3rem" />
+        <Image class="card" src={prov2} alt="Provision +2" widths={[120, 240]} sizes="3rem" />
       </p>
       <p class="total">4 + 1 + 2 = <Energy n={7} /></p>
-      <small>Base Camp 4, provisions 1 + 2. Energy is never saved or traded.</small>
     </li>
+
     <li class="act">
-      <p class="step"><span class="marker">3</span> Act, in any order</p>
-      <ul>
-        <li><span>Buy terrain</span><Energy n={2} /><em>once</em></li>
-        <li><span>Buy equipment</span><span class="price">price</span><em>once</em></li>
-        <li><span>Buy food</span><Energy n={2} /><em>once</em></li>
-        <li><span>Move</span><span class="price">per tile</span></li>
-        <li><span>Photograph</span><Energy n={1} /></li>
-        <li><span>Trade</span><Energy n={0} /></li>
+      <p class="step"><span class="marker">3</span> Act, any order</p>
+      <ul class="actions">
+        {actions.map((a) => (
+          <li>
+            <ActionIcon name={a.icon} size="2rem" />
+            <strong>{a.name}</strong>
+            <span class="cost">{typeof a.cost === 'number' ? <Energy n={a.cost} /> : a.cost}</span>
+            <small>{a.note}</small>
+            {a.once && <em>once</em>}
+          </li>
+        ))}
       </ul>
     </li>
+
     <li>
-      <p class="step"><span class="marker">4</span> End of turn</p>
-      <small>Unused energy is lost: it can't be saved for the next turn. Play passes to the left.</small>
-      <p class="goal">Reach the Summit and the game ends at once.</p>
+      <p class="step"><span class="marker">4</span> End</p>
+      <p class="lost"><Energy n={7} /><span aria-hidden="true">→</span><Energy n={0} /></p>
+      <small>Unused energy is lost.</small>
+      <p class="goal">On the Summit? You win at once.</p>
     </li>
   </ol>
 </figure>
 
 <style>
-  .day { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-s); }
-  .day-card { display: flex; align-items: center; gap: var(--s-s); }
-  .day-card :global(img) { width: 7rem; height: auto; border-radius: 0.236rem; box-shadow: var(--shadow); rotate: -2deg; }
-  .day-card > span { display: grid; gap: 0.2rem; font-weight: 650; }
-  .day-card > span .marker { margin-bottom: 0.2rem; }
-  .day-card small { font-weight: 400; color: var(--ink-soft); font-size: var(--step--1); }
-  .players { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: var(--s-xs); }
-  .players li {
-    display: grid; justify-items: center; gap: 0.15rem;
-    padding: var(--s-2xs) var(--s-xs); border-radius: var(--r-s);
-    background: #fff; border: 1px solid var(--line);
-  }
-  .players small { font-size: var(--step--2); color: var(--ink-soft); white-space: nowrap; }
+  .day { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-xs) var(--s-s); }
+  .day :global(img) { width: 6rem; height: auto; border-radius: 0.236rem; box-shadow: var(--shadow); rotate: -2deg; }
+  .label { display: grid; font-weight: 650; line-height: 1.25; }
+  .label small { font-weight: 400; color: var(--ink-soft); font-size: var(--step--1); }
+  .players { list-style: none; padding: 0; display: flex; gap: var(--s-2xs); }
+  .players li { display: grid; place-items: center; width: 2.236rem; height: 2.236rem; border-radius: 50%; background: #fff; border: 1px solid var(--line); }
 
-  .turn { list-style: none; padding: 0; display: grid; gap: var(--s-xs); counter-reset: none; }
-  @media (min-width: 56rem) { .turn { grid-template-columns: 1fr 1.618fr 1fr; } }
+  .turn { list-style: none; padding: 0; display: grid; gap: var(--s-xs); }
+  @media (min-width: 56rem) { .turn { grid-template-columns: 1fr 2.618fr 1fr; } }
   .turn > li {
     position: relative;
-    display: grid; gap: var(--s-2xs); align-content: start;
-    padding: var(--s-s);
-    border-radius: var(--r-m);
+    display: grid; gap: var(--s-2xs); align-content: start; justify-items: start;
+    padding: var(--s-s); border-radius: var(--r-m);
     background: #fff; border: 1px solid var(--line);
   }
   @media (min-width: 56rem) {
     .turn > li + li::before {
       content: '→'; position: absolute; left: calc(-1 * var(--s-xs)); top: 50%; translate: -50% -50%;
-      color: var(--ink-soft); font-size: var(--step-0);
+      color: var(--ink-soft);
     }
   }
   .step { display: flex; align-items: center; gap: var(--s-2xs); font-weight: 700; color: var(--forest); }
   .step .marker { background: var(--forest); }
-  .sum { display: flex; align-items: center; flex-wrap: wrap; gap: var(--s-2xs); }
-  .sum :global(.base-camp) { width: 2.618rem; height: auto; border-radius: 0.15rem; box-shadow: 0 1px 3px rgb(34 48 60 / 0.3); }
-  .plus { font-weight: 700; color: var(--ink-soft); }
-  .provisions { display: inline-flex; gap: 0.2rem; }
-  .provisions :global(img) { width: 2rem; height: auto; border-radius: 0.15rem; box-shadow: 0 1px 3px rgb(34 48 60 / 0.3); }
-  .total { font-weight: 650; }
-  .turn small { font-size: var(--step--1); color: var(--ink-soft); }
 
-  .act ul { list-style: none; padding: 0; display: grid; font-size: var(--step--1); }
-  .act ul li { display: grid; grid-template-columns: 1fr 4.5rem 2.618rem; align-items: center; gap: var(--s-2xs); padding-block: 0.3rem; border-bottom: 1px solid var(--line); }
-  .act ul li:last-child { border-bottom: 0; }
-  .act ul li span:first-child { font-weight: 650; }
-  .price { color: var(--gold); font-weight: 700; }
-  .act em {
-    font-style: normal; font-size: var(--step--2); font-weight: 700; text-align: center;
-    padding: 0.1em 0.5em; border-radius: 999px; background: var(--ink-soft); color: #fff;
+  .sum { display: flex; align-items: center; gap: 0.3rem; }
+  .sum :global(.card) { width: 3rem; height: auto; border-radius: 0.15rem; box-shadow: 0 1px 4px rgb(34 48 60 / 0.3); }
+  .op { font-weight: 700; color: var(--ink-soft); }
+  .total { font-weight: 650; font-size: var(--step-1); }
+
+  .actions { list-style: none; padding: 0; width: 100%; display: grid; gap: var(--s-2xs); grid-template-columns: repeat(auto-fill, minmax(7.5rem, 1fr)); }
+  .actions li {
+    position: relative;
+    display: grid; justify-items: center; gap: 0.1rem; text-align: center;
+    padding: var(--s-xs) var(--s-2xs);
+    border-radius: var(--r-s); background: var(--snow);
   }
+  .actions :global(.icon) { color: var(--e3); margin-bottom: 0.15rem; }
+  .actions strong { font-size: var(--step--1); }
+  .actions .cost { font-size: var(--step--1); font-weight: 700; color: var(--gold); }
+  .actions small { font-size: var(--step--2); color: var(--ink-soft); }
+  .actions em {
+    position: absolute; top: 0.3rem; right: 0.3rem;
+    font-style: normal; font-size: 0.6rem; font-weight: 700; letter-spacing: 0.02em;
+    padding: 0.05em 0.45em; border-radius: 999px; background: var(--ink-soft); color: #fff;
+  }
+
+  .lost { display: flex; align-items: center; gap: var(--s-2xs); font-size: var(--step-1); }
+  .lost > span:nth-child(2) { color: var(--ink-soft); }
+  .turn small { font-size: var(--step--1); color: var(--ink-soft); }
   .goal { font-weight: 700; color: var(--forest); font-size: var(--step--1); margin-top: var(--s-2xs); }
 </style>

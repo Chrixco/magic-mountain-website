@@ -1,0 +1,26 @@
+---
+// Line icons for the turn actions, drawn like the gear symbols (8 × 8 live area, round caps).
+// Gear, camera and summit come from the Symbols set via <Icon>; these fill the gaps.
+import Icon from '../Icon.astro';
+import { ICON_VIEWBOX, ICON_STROKE } from '../../data/icons';
+
+interface Props { name: 'terrain' | 'gear' | 'food' | 'move' | 'photo' | 'trade'; size?: string }
+const { name, size = '2rem' } = Astro.props;
+
+const own: Record<string, string> = {
+  // two hexagonal tiles, one being dropped in
+  terrain: '<path d="M4.2 7.6 5 6.2h1.6l.8 1.4-.8 1.4H5z"/><path d="M6.6 5.2l.8-1.4H9l.8 1.4L9 6.6H7.4z"/><path d="M8.2 7.4v1.6M7.5 8.4l.7.7.7-.7"/>',
+  // a food card with an apple
+  food: '<rect x="4.4" y="3.2" width="4.2" height="6" rx=".5"/><path d="M6.5 5.4c-.9-.4-1.6.2-1.6 1 0 .9.7 1.7 1.6 1.4.9.3 1.6-.5 1.6-1.4 0-.8-.7-1.4-1.6-1z"/><path d="M6.5 5.4c0-.4.2-.7.5-.9"/>',
+  // two footprints climbing
+  move: '<path d="M4.6 8.9c-.5 0-.8-.5-.7-1.2.1-.9.5-1.6 1-1.6s.7.6.6 1.4c-.1.8-.4 1.4-.9 1.4z"/><path d="M7.9 6.2c-.5 0-.8-.5-.7-1.2.1-.9.5-1.6 1-1.6s.7.6.6 1.4c-.1.8-.4 1.4-.9 1.4z"/><path d="M4.4 9.6h.5M7.7 6.9h.5"/>',
+  // two arrows swapping
+  trade: '<path d="M3.6 5.4h5.6M7.6 3.8l1.6 1.6-1.6 1.6"/><path d="M9.4 7.6H3.8M5.4 9.2 3.8 7.6 5.4 6"/>',
+};
+const fromSymbols: Record<string, 'axe' | 'camera'> = { gear: 'axe', photo: 'camera' };
+---
+{fromSymbols[name] ? (
+  <Icon name={fromSymbols[name]} size={size} />
+) : (
+  <svg class="icon" viewBox={ICON_VIEWBOX} width={size} height={size} fill="none" stroke="currentColor" stroke-width={ICON_STROKE} stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" set:html={own[name]} />
+)}

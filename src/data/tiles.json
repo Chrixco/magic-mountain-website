@@ -2,7 +2,7 @@
  "1:clear-meadow": [
   {
    "src": "tiles/e1_clear-meadow_a.webp",
-   "copies": 6,
+   "copies": 4,
    "viewpoint": false
   },
   {
@@ -54,7 +54,7 @@
   },
   {
    "src": "tiles/e1_clear-stream_k.webp",
-   "copies": 2,
+   "copies": 1,
    "viewpoint": false
   },
   {
@@ -69,7 +69,7 @@
   },
   {
    "src": "tiles/e1_clear-stream_p.webp",
-   "copies": 2,
+   "copies": 1,
    "viewpoint": false
   }
  ],
@@ -77,6 +77,13 @@
   {
    "src": "tiles/e1_lava_e.webp",
    "copies": 2,
+   "viewpoint": false
+  }
+ ],
+ "1:snow": [
+  {
+   "src": "tiles/e1_snow_r.webp",
+   "copies": 4,
    "viewpoint": false
   }
  ],

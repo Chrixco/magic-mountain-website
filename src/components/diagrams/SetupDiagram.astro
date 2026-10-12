@@ -32,6 +32,18 @@ const bags = [
   { e: 3, name: 'Blue' },
   { e: 4, name: 'White' },
 ];
+// The setup steps as one-line captions; the numbers match the markers in the picture.
+const legend = [
+  'Lay out the frames, any shape',
+  'Summit on the highest frame',
+  'START tiles on outer frames',
+  'Fill the four bags',
+  'Shuffle the three decks, lay out the gear',
+  'Take your Base Camp, +4 a turn',
+  'No gear yet: you buy it in play',
+  'Roll two dice: highest starts',
+];
+
 const decks = [
   { src: dayCard, name: 'Day', note: '40 cards' },
   { src: foodCard, name: 'Food', note: '50 cards' },
@@ -39,10 +51,7 @@ const decks = [
 ];
 ---
 <figure class="diagram setup">
-  <div>
-    <p class="diagram-title">Setup at a glance</p>
-    <p>A Standard mountain for four players. The numbers match the steps.</p>
-  </div>
+  <p class="diagram-title">Setup at a glance</p>
 
   <div class="table">
     <!-- 4: the bags -->
@@ -88,9 +97,14 @@ const decks = [
     <span class="marker">6</span>
     <strong>Your area</strong>
     <Image class="base-camp" src={baseCamp} alt="Base Camp card: +4 Energy at the start of each turn" widths={[120, 240]} sizes="3rem" />
+    <Energy n="+4" />
     <Climber />
-    <small>Your Base Camp card (<Energy n="+4" /> every turn) and your climber on your START tile. No gear yet: you buy it in play.</small>
+    <span class="dice" aria-hidden="true"><svg viewBox="0 0 24 24" width="1.618rem" height="1.618rem"><rect x="2" y="2" width="20" height="20" rx="4" fill="#c8372d"/><circle cx="8" cy="8" r="2" fill="#fff"/><circle cx="16" cy="16" r="2" fill="#fff"/><circle cx="12" cy="12" r="2" fill="#fff"/></svg><svg viewBox="0 0 24 24" width="1.618rem" height="1.618rem"><rect x="2" y="2" width="20" height="20" rx="4" fill="#c8372d"/><circle cx="8" cy="8" r="2" fill="#fff"/><circle cx="16" cy="16" r="2" fill="#fff"/><circle cx="16" cy="8" r="2" fill="#fff"/><circle cx="8" cy="16" r="2" fill="#fff"/></svg></span>
   </div>
+
+  <ol class="legend">
+    {legend.map((text) => <li>{text}</li>)}
+  </ol>
 </figure>
 
 <style>
@@ -123,5 +137,15 @@ const decks = [
     background: rgb(200 55 45 / 0.04);
   }
   .area :global(.base-camp) { width: 3rem; height: auto; border-radius: 0.15rem; box-shadow: 0 1px 4px rgb(34 48 60 / 0.3); }
-  .area small { font-size: var(--step--1); color: var(--ink-soft); flex: 1 1 14rem; }
+  .area :global(.energy) { font-size: var(--step-1); }
+  .dice { display: inline-flex; gap: 0.2rem; margin-left: auto; }
+
+  /* One-line captions, numbered like the markers */
+  .legend { list-style: none; padding: 0; counter-reset: s; display: grid; gap: var(--s-2xs) var(--s-m); grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr)); font-size: var(--step--1); }
+  .legend li { counter-increment: s; display: flex; align-items: center; gap: var(--s-2xs); }
+  .legend li::before {
+    content: counter(s);
+    display: inline-grid; place-items: center; flex: none; width: 1.618rem; height: 1.618rem; border-radius: 50%;
+    background: var(--gold); color: #fff; font-weight: 700;
+  }
 </style>

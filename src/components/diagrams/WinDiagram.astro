@@ -1,0 +1,32 @@
+---
+// Who wins (rulebook §7): first climber on the Summit, or both climbers of a team.
+import Climber from './Climber.astro';
+import { asset } from '../../data/site';
+---
+<div class="win">
+  <figure class="diagram mode">
+    <div class="summit">
+      <img src={asset('tiles/summit_standard_large.webp')} alt="" width="219" height="190" loading="lazy" />
+      <span class="on"><Climber color="#c8372d" size="2.236rem" /></span>
+    </div>
+    <figcaption><strong>Free-for-All</strong>First climber on the Summit wins.</figcaption>
+  </figure>
+  <figure class="diagram mode">
+    <div class="summit">
+      <img src={asset('tiles/summit_standard_large.webp')} alt="" width="219" height="190" loading="lazy" />
+      <span class="on"><Climber color="#2864b4" size="2.236rem" /><Climber color="#2864b4" size="2.236rem" /></span>
+    </div>
+    <figcaption><strong>Teams of two</strong>Both teammates on the Summit win.</figcaption>
+  </figure>
+</div>
+
+<style>
+  .win { display: grid; gap: var(--s-s); }
+  @media (min-width: 40rem) { .win { grid-template-columns: 1fr 1fr; } }
+  .mode { grid-template-columns: auto 1fr; align-items: center; gap: var(--s-m); }
+  .summit { position: relative; display: grid; place-items: center; }
+  .summit img { width: 6.854rem; height: auto; filter: drop-shadow(0 4px 6px rgb(34 48 60 / 0.3)); }
+  .on { position: absolute; top: 4%; display: flex; gap: 0.15rem; filter: drop-shadow(0 2px 2px rgb(0 0 0 / 0.4)); }
+  figcaption { display: grid; gap: 0.2rem; font-size: var(--step--1); color: var(--ink-soft); }
+  figcaption strong { font-family: var(--font-display); font-weight: 400; font-size: var(--step-1); color: var(--ink); }
+</style>

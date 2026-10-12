@@ -1,0 +1,73 @@
+---
+// Lena's turn (rulebook "Example of Play"), told as a strip: 5 Energy in, spent piece by piece to 0.
+import { Image } from 'astro:assets';
+import Energy from './Energy.astro';
+import ActionIcon from './ActionIcon.astro';
+import { terrain, tileSrc } from '../../data/game';
+import { asset } from '../../data/site';
+import baseCamp from '../../assets/cards/base-camp.png';
+import prov1 from '../../assets/cards/food-provision1-01.png';
+
+const tile = (e: number, id: string) => asset(tileSrc(terrain.find((t) => t.elevation === e && t.id === id)!));
+const spends = [
+  { kind: 'terrain', label: 'Buy terrain', cost: 2 },
+  { kind: 'tile', src: tile(1, 'snow'), label: 'Snow, Elevation 1', cost: 1 },
+  { kind: 'tile', src: tile(1, 'snow'), label: 'Snow, Elevation 1', cost: 1 },
+  { kind: 'tile', src: tile(2, 'clear'), label: 'Clear, Elevation 2', cost: 1 },
+] as const;
+
+// energy left after each spend, starting from 5
+let left = 5;
+const after = spends.map((s) => (left -= s.cost));
+---
+<figure class="diagram example">
+  <div>
+    <p class="diagram-title">Example: Lena’s turn</p>
+    <p>Today’s Day card: moving on Elevations 1–2 costs 1 less.</p>
+  </div>
+
+  <div class="strip">
+    <div class="income">
+      <Image src={baseCamp} alt="Base Camp, +4" widths={[120, 240]} sizes="2.618rem" />
+      <Image src={prov1} alt="Provision, +1" widths={[120, 240]} sizes="2.618rem" />
+      <span class="eq">= <Energy n={5} /></span>
+    </div>
+    {spends.map((s, i) => (
+      <div class="spend">
+        <span class="arrow" aria-hidden="true">→</span>
+        {s.kind === 'terrain'
+          ? <span class="pic"><ActionIcon name="terrain" size="2.618rem" /></span>
+          : <img class="pic" src={s.src} alt="" width="120" height="104" loading="lazy" />}
+        <small>{s.label}</small>
+        <span class="cost">−{s.cost}</span>
+        <span class="pips" aria-label={`${after[i]} Energy left`}>
+          {Array.from({ length: 5 }, (_, k) => <i class={k < after[i] ? 'on' : ''} />)}
+        </span>
+      </div>
+    ))}
+  </div>
+  <figcaption>5 Energy in, 0 left: terrain for 2, then three steps for 1 each (in her Snow Boots).</figcaption>
+</figure>
+
+<style>
+  .strip { display: flex; flex-wrap: wrap; align-items: stretch; gap: var(--s-2xs); }
+  .income { display: flex; align-items: center; gap: 0.3rem; padding-right: var(--s-2xs); }
+  .income :global(img) { width: 2.618rem; height: auto; border-radius: 0.15rem; box-shadow: 0 1px 4px rgb(34 48 60 / 0.3); }
+  .eq { font-size: var(--step-1); font-weight: 700; margin-left: 0.2rem; }
+
+  .spend {
+    position: relative;
+    display: grid; justify-items: center; align-content: start; gap: 0.15rem;
+    width: 6.854rem; padding: var(--s-2xs);
+    border-radius: var(--r-s); background: #fff; border: 1px solid var(--line);
+    text-align: center;
+  }
+  .spend .arrow { position: absolute; left: -0.55rem; top: 1.2rem; font-size: var(--step--1); }
+  .pic { width: 3.236rem; height: auto; display: grid; place-items: center; aspect-ratio: 1.1547; color: var(--e3); filter: drop-shadow(0 2px 3px rgb(34 48 60 / 0.25)); }
+  .spend small { font-size: var(--step--2); color: var(--ink-soft); line-height: 1.2; }
+  .cost { font-weight: 700; color: var(--gold); }
+  .pips { display: flex; gap: 2px; }
+  .pips i { width: 0.5rem; height: 0.5rem; border-radius: 50%; background: var(--line); }
+  .pips i.on { background: var(--gold); }
+  figcaption { font-size: var(--step--1); color: var(--ink-soft); }
+</style>

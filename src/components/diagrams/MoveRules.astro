@@ -1,0 +1,88 @@
+---
+// The movement rules as six small picture cards (rulebook §6), a few words each.
+import Icon from '../Icon.astro';
+import Climber from './Climber.astro';
+import Energy from './Energy.astro';
+import { terrain, tileSrc, gearName, type Gear } from '../../data/game';
+import { asset } from '../../data/site';
+
+const tile = (e: number, id: string) => asset(tileSrc(terrain.find((t) => t.elevation === e && t.id === id)!));
+const chips = (g: Gear[]) => g;
+---
+<ul class="move-rules">
+  <li>
+    <div class="pic pair">
+      <img src={tile(3, 'snowfield')} alt="" width="120" height="104" loading="lazy" />
+      <span class="down" aria-hidden="true">↘</span>
+      <img src={tile(2, 'snow')} alt="" width="120" height="104" loading="lazy" />
+    </div>
+    <p><strong>Down costs the same.</strong> Entering Elevation 2 is <Energy n={2} />, from above or below.</p>
+  </li>
+  <li>
+    <div class="pic">
+      <img src={tile(3, 'snowfield')} alt="" width="120" height="104" loading="lazy" />
+      <span class="chips">{chips(['rope', 'boots', 'tent']).map((g) => <span class="gear-chip"><Icon name={g} size="1.1em" />{gearName[g]}</span>)}</span>
+    </div>
+    <p><strong>Own every icon on the tile</strong> when you step on it.</p>
+  </li>
+  <li>
+    <div class="pic">
+      <img src={tile(3, 'snow-shore')} alt="" width="120" height="104" loading="lazy" />
+      <span class="chips">{chips(['boots', 'tent', 'boat']).map((g) => <span class="gear-chip"><Icon name={g} size="1.1em" />{gearName[g]}</span>)}</span>
+    </div>
+    <p><strong>Water needs the Boat.</strong> On a shore, plus the land gear.</p>
+  </li>
+  <li>
+    <div class="pic">
+      <img src={tile(2, 'lava')} alt="" width="120" height="104" loading="lazy" />
+      <span class="cross" aria-hidden="true">✕</span>
+    </div>
+    <p><strong>Lava: never.</strong> Go around it.</p>
+  </li>
+  <li>
+    <div class="pic">
+      <img src={tile(1, 'clear-meadow')} alt="" width="120" height="104" loading="lazy" />
+      <span class="climbers"><Climber color="#c8372d" size="1.618rem" /><Climber color="#2864b4" size="1.618rem" /><Climber color="#e8b214" size="1.618rem" /></span>
+    </div>
+    <p><strong>No blocking.</strong> Climbers share tiles.</p>
+  </li>
+  <li>
+    <div class="pic">
+      <img src={tile(4, 'ice-field')} alt="" width="120" height="104" loading="lazy" />
+      <span class="climbers"><Climber color="#7846a0" size="1.618rem" /></span>
+      <span class="lostgear" aria-hidden="true"><Icon name="helmet" size="1.272rem" /></span>
+    </div>
+    <p><strong>Lose gear later?</strong> You stay where you are.</p>
+  </li>
+</ul>
+
+<style>
+  .move-rules { list-style: none; padding: 0; display: grid; gap: var(--s-xs); grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr)); }
+  .move-rules > li {
+    display: grid; gap: var(--s-2xs); align-content: start; justify-items: center; text-align: center;
+    padding: var(--s-s); border-radius: var(--r-m); background: #fff; border: 1px solid var(--line);
+  }
+  .move-rules p { font-size: var(--step--1); line-height: 1.4; }
+  .move-rules strong { display: block; color: var(--ink); }
+
+  .pic { position: relative; display: grid; justify-items: center; }
+  .pic img { width: 5.5rem; height: auto; filter: drop-shadow(0 3px 4px rgb(34 48 60 / 0.25)); }
+  .pair { grid-auto-flow: column; align-items: center; gap: 0.2rem; }
+  .pair img { width: 4.236rem; }
+  .pair img:last-child { margin-top: 1.6rem; }
+  .down { font-size: var(--step-1); color: var(--ink-soft); }
+  .chips { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.2rem; margin-top: 0.3rem; }
+  .chips :global(.gear-chip) { font-size: var(--step--2); }
+  .cross {
+    position: absolute; top: 50%; left: 50%; translate: -50% -60%;
+    font-size: 2.618rem; font-weight: 700; color: #fff; line-height: 1;
+    text-shadow: 0 0 6px var(--lava), 0 0 2px var(--lava);
+  }
+  .climbers { position: absolute; top: 18%; display: flex; gap: 0.1rem; filter: drop-shadow(0 2px 2px rgb(0 0 0 / 0.35)); }
+  .lostgear {
+    position: absolute; right: 0.4rem; bottom: 0.4rem;
+    display: grid; place-items: center; width: 1.618rem; height: 1.618rem; border-radius: 50%;
+    background: #fff; color: var(--lava); box-shadow: 0 1px 3px rgb(0 0 0 / 0.3);
+  }
+  .lostgear::after { content: ''; position: absolute; width: 1.9rem; height: 2px; background: var(--lava); rotate: -45deg; }
+</style>

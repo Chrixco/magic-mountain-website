@@ -15,10 +15,7 @@ const ring = Array.from({ length: 6 }, (_, k) => {
 });
 ---
 <figure class="diagram summits">
-  <div>
-    <p class="diagram-title">Three Summit tiles</p>
-    <p>Each game length has its own Summit, with its cost and gear printed on the tile. The Boat is never needed.</p>
-  </div>
+  <p class="diagram-title">Three Summit tiles: cost and gear are printed on each</p>
 
   <ul class="tiles">
     {mountains.map((m) => (
@@ -40,10 +37,7 @@ const ring = Array.from({ length: 6 }, (_, k) => {
   </div>
   <div class="text">
     <p class="diagram-title">The mountain closes</p>
-    <p>
-      Lava may go in any empty slot, even beside the Summit. If no climber can reach the Summit any more, the game
-      ends at once: the most Golden Tickets wins, then the climber standing highest.
-    </p>
+    <p>Lava may seal the Summit. If nobody can reach it, the most Golden Tickets wins.</p>
   </div>
 </figure>
 

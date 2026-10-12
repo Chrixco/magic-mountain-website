@@ -23,7 +23,7 @@ export const elevations: {
   { level: 4, frame: 'White', cost: 8, terrain: 'Ice walls and ice fields. Crampons and Helmet country.' },
   { level: 3, frame: 'Blue', cost: 4, terrain: 'Snowfields, icy rock, ridges and deep water. The Tent comes out.' },
   { level: 2, frame: 'Teal', cost: 2, terrain: 'Snow, slopes and rock. Boots first, then Rope and Axe.' },
-  { level: 1, frame: 'Green', cost: 2, terrain: 'Meadows and streams. Three in four tiles need no gear at all.' },
+  { level: 1, frame: 'Green', cost: 2, terrain: 'Meadows, streams and the first snow. Most tiles need no gear at all.' },
 ];
 
 /** Terrain tile masters. `copies` and `file` match the Final Design export. */
@@ -40,8 +40,9 @@ const t = (elevation: Elevation, id: string, name: string, copies: number, viewp
   ({ id, elevation, name, copies, viewpoint, gear });
 
 export const terrain: Terrain[] = [
-  t(1, 'clear-meadow', 'Clear meadow', 13, 1, []),
-  t(1, 'clear-stream', 'Clear stream', 11, 1, []),
+  t(1, 'clear-meadow', 'Clear meadow', 11, 1, []),
+  t(1, 'clear-stream', 'Clear stream', 9, 1, []),
+  t(1, 'snow', 'Snow', 4, 0, ['boots']),
   t(1, 'water', 'Water', 6, 1, ['boat']),
   t(1, 'lava', 'Lava', 2, 0, 'lava'),
   t(2, 'snow', 'Snow', 10, 1, ['boots']),

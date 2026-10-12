@@ -1,5 +1,5 @@
 ---
-// Photographing a viewpoint (rulebook figure): viewpoint tile + Camera, four short steps, two outcomes.
+// Photographing a viewpoint (rulebook figure), in three pictures: stop on it, pay 1, collect.
 import { Image } from 'astro:assets';
 import Icon from '../Icon.astro';
 import Energy from './Energy.astro';
@@ -10,53 +10,42 @@ import ticket from '../../assets/cards/ticket-summit-permit.png';
 const water = terrain.find((t) => t.elevation === 1 && t.id === 'water')!;
 ---
 <figure class="diagram viewpoint">
-  <div>
-    <p class="diagram-title">Photographing a viewpoint</p>
-    <p>Ten tiles carry a camera icon. With the Camera in your kit, a stop there can win a Golden Ticket.</p>
-  </div>
+  <p class="diagram-title">Viewpoints: photograph for a Golden Ticket</p>
 
-  <div class="layout">
-    <div class="kit">
-      <img src={asset(tileSrc(water, true))} alt="A viewpoint tile with the camera icon" width="120" height="104" loading="lazy" />
-      <span class="plus" aria-hidden="true">+</span>
-      <span class="camera"><Icon name="camera" size="2.618rem" /><small>Camera, <Energy n={2} /></small></span>
-    </div>
-
-    <ol class="steps">
-      <li><strong>End your move on it.</strong> Entering costs the same as any tile of its elevation.</li>
-      <li><strong>Pay <Energy n={1} /> to photograph.</strong> Only with the Camera, on your turn.</li>
-      <li><strong>First photo of this viewpoint?</strong> Draw a Golden Ticket. Already photographed: gain <Energy n={3} /> instead.</li>
-      <li><strong>Mark it as photographed.</strong></li>
-    </ol>
-
-    <div class="outcomes">
-      <Image src={ticket} alt="A Golden Ticket card" widths={[160, 320]} sizes="4.236rem" />
-      <span class="or">or</span>
-      <span class="plus3"><Energy n="+3" /></span>
-    </div>
-  </div>
+  <ol class="row">
+    <li>
+      <img src={asset(tileSrc(water, true))} alt="A viewpoint tile, with the camera icon" width="120" height="104" loading="lazy" />
+      <small>End your move on a viewpoint</small>
+    </li>
+    <li>
+      <span class="camera"><Icon name="camera" size="2.618rem" /></span>
+      <small>Own the Camera, pay <Energy n={1} /></small>
+    </li>
+    <li class="result">
+      <div class="outcome">
+        <Image src={ticket} alt="A Golden Ticket" widths={[160, 320]} sizes="3.236rem" />
+        <small>First photo: a Golden Ticket</small>
+      </div>
+      <div class="outcome">
+        <span class="plus3"><Energy n="+3" /></span>
+        <small>Already taken: 3 Energy</small>
+      </div>
+    </li>
+  </ol>
 </figure>
 
 <style>
-  .layout { display: grid; gap: var(--s-m); align-items: center; }
-  @media (min-width: 56rem) { .layout { grid-template-columns: auto 1fr auto; } }
-  .kit { display: flex; align-items: center; gap: var(--s-xs); }
-  .kit img { width: 6.854rem; height: auto; filter: drop-shadow(0 3px 4px rgb(34 48 60 / 0.25)); }
-  .plus { font-size: var(--step-2); color: var(--ink-soft); }
-  .camera {
-    display: grid; justify-items: center; gap: 0.2rem;
-    padding: var(--s-xs); border-radius: var(--r-m); background: #fff; border: 1px solid var(--line);
-    font-size: var(--step--1);
+  .row { list-style: none; padding: 0; display: grid; gap: var(--s-s); align-items: center; }
+  @media (min-width: 40rem) { .row { grid-template-columns: 1fr 1fr 1.618fr; } }
+  .row > li { position: relative; display: grid; justify-items: center; gap: var(--s-2xs); text-align: center; }
+  @media (min-width: 40rem) {
+    .row > li + li::before { content: '→'; position: absolute; left: calc(-1 * var(--s-s) / 2); top: 35%; translate: -50% 0; color: var(--ink-soft); font-size: var(--step-1); }
   }
-  .steps { list-style: none; padding: 0; counter-reset: v; display: grid; gap: var(--s-2xs); font-size: var(--step--1); }
-  .steps li { counter-increment: v; position: relative; padding-left: 2.236rem; }
-  .steps li::before {
-    content: counter(v); position: absolute; left: 0; top: -0.1rem;
-    display: grid; place-items: center; width: 1.618rem; height: 1.618rem; border-radius: 50%;
-    background: var(--forest); color: #fff; font-weight: 700;
-  }
-  .outcomes { display: flex; align-items: center; gap: var(--s-xs); }
-  .outcomes :global(img) { width: 4.236rem; height: auto; border-radius: 0.236rem; box-shadow: var(--shadow); rotate: 3deg; }
-  .or { font-size: var(--step--1); color: var(--ink-soft); }
-  .plus3 { font-size: var(--step-2); }
+  .row img { width: 5.5rem; height: auto; filter: drop-shadow(0 3px 4px rgb(34 48 60 / 0.25)); }
+  .camera { display: grid; place-items: center; width: 4.236rem; height: 4.236rem; border-radius: var(--r-m); background: #fff; border: 1px solid var(--line); }
+  small { font-size: var(--step--1); color: var(--ink-soft); line-height: 1.3; max-width: 11rem; }
+  .result { grid-auto-flow: column; justify-content: center; gap: var(--s-m); }
+  .outcome { display: grid; justify-items: center; gap: var(--s-2xs); }
+  .outcome :global(img) { width: 3.236rem; height: auto; border-radius: 0.2rem; box-shadow: var(--shadow); rotate: 3deg; }
+  .plus3 { display: grid; place-items: center; height: 4.5rem; font-size: var(--step-3); }
 </style>
