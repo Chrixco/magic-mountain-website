@@ -54,7 +54,7 @@ import equipmentPhoto from '../../assets/photos/equipment.png';
 
   .gear {
     list-style: none; padding: 0;
-    display: grid; gap: var(--s-m) var(--s-l); grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr));
+    display: grid; gap: var(--s-m) var(--s-l); grid-template-columns: repeat(auto-fill, minmax(min(100%, 13rem), 1fr));
   }
   .gear li { display: grid; grid-template-columns: auto 1fr; column-gap: var(--s-s); align-content: start; }
   .gear :global(.icon) { grid-row: span 3; color: var(--e3); }

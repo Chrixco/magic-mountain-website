@@ -12,7 +12,7 @@ import TurnExample from '../diagrams/TurnExample.astro';
 import MoveRules from '../diagrams/MoveRules.astro';
 import WinDiagram from '../diagrams/WinDiagram.astro';
 import { elevations, mountains } from '../../data/game';
-import { links, video } from '../../data/site';
+import { video } from '../../data/site';
 
 const tabs = [
   { id: 'setup', label: 'Setup' },
@@ -89,7 +89,7 @@ const tabs = [
       </div>
     </div>
 
-    <p class="more"><a href={links.rulebook} download>Download the full rulebook (PDF)</a></p>
+    <p class="more"><a href="#rulebook">Read the full rulebook</a></p>
   </div>
 </section>
 
@@ -98,7 +98,7 @@ const tabs = [
   .video video { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; border-radius: var(--r-m); background: var(--paper); }
   .video figcaption { padding: var(--s-xs) var(--s-2xs) var(--s-3xs); font-size: var(--step--1); color: var(--ink-soft); }
 
-  .rules { display: grid; gap: var(--s-s); }
+  .rules { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s-s); } /* one column, never wider than the screen */
 
   /* Tabs: four numbered steps of one sequence */
   .tabs { display: flex; flex-wrap: wrap; gap: var(--s-2xs); }
@@ -134,10 +134,12 @@ const tabs = [
   .panel.active { animation: panel-in var(--t-mid) var(--ease); }
   @keyframes panel-in { from { opacity: 0; transform: translateY(0.382rem); } }
   @media (max-width: 40rem) { .panel { padding: var(--s-m); } }
+  @media (max-width: 24rem) { .panel { padding: var(--s-s); } }
+  .panel { grid-template-columns: minmax(0, 1fr); }
   .panel-title { font-size: var(--step-2); }
 
   /* Moving: the price of a step per elevation, as a short ladder */
-  .costs { list-style: none; padding: 0; display: grid; gap: var(--s-2xs); grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); }
+  .costs { list-style: none; padding: 0; display: grid; gap: var(--s-2xs); grid-template-columns: repeat(auto-fit, minmax(min(100%, 10rem), 1fr)); }
   .costs li {
     display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: var(--s-xs);
     padding: var(--s-xs) var(--s-s); border-radius: var(--r-m);

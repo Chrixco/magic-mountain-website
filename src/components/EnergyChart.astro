@@ -53,6 +53,12 @@ const max = Math.max(...mountains.map((m) => Object.values(m.budget).reduce((a, 
   .row { display: grid; grid-template-columns: 6.5em 1fr 2.6em; align-items: center; gap: var(--s-xs); }
   .row-name { font-weight: 600; font-size: var(--step--1); }
   .row-total { font-variant-numeric: tabular-nums; font-size: var(--step--1); color: var(--ink-soft); }
+  /* Narrow phones: the mountain's name and total above its bar, so the bar gets the full width */
+  @media (max-width: 30rem) {
+    .row { grid-template-columns: 1fr auto; row-gap: 0.236rem; }
+    .row .bar { grid-column: 1 / -1; grid-row: 2; }
+    .row-total { grid-row: 1; grid-column: 2; }
+  }
   .bar { display: flex; gap: 2px; width: var(--w); height: 1.618rem; }
   .seg {
     position: relative; display: grid; place-items: center;
@@ -66,15 +72,18 @@ const max = Math.max(...mountains.map((m) => Object.values(m.budget).reduce((a, 
     position: absolute; bottom: calc(100% + 0.382rem); left: 50%; translate: -50% 0;
     padding: 0.2em 0.618em; border-radius: var(--r-s);
     background: var(--ink); color: #fff; font-size: var(--step--1); white-space: nowrap;
-    opacity: 0; pointer-events: none; transition: opacity var(--t-fast);
+    display: none; pointer-events: none; /* out of the layout until shown, so it never widens the page */
     z-index: 2;
   }
-  .seg:hover .tip { opacity: 1; }
+  .seg:hover .tip { display: block; }
+  .seg:first-child .tip { left: 0; translate: 0 0; }   /* the edge labels open inward */
+  .seg:last-child .tip { left: auto; right: 0; translate: 0 0; }
   .seg:hover { filter: brightness(1.08); }
-  details { font-size: var(--step--1); }
+  details { font-size: var(--step--1); max-width: 100%; overflow-x: auto; } /* the table scrolls on its own on narrow phones */
   summary { cursor: pointer; color: var(--forest); font-weight: 600; width: max-content; }
   table { margin-top: var(--s-xs); border-collapse: collapse; font-variant-numeric: tabular-nums; }
   th, td { padding: 0.25em 1em 0.25em 0; text-align: left; border-bottom: 1px solid var(--line); }
+  @media (max-width: 26rem) { th, td { padding-right: 0.6em; } }
   td { text-align: right; }
   thead th:not(:first-child) { text-align: right; }
   .total th, .total td { font-weight: 700; border-bottom: 0; }

@@ -57,7 +57,7 @@ const chips = (g: Gear[]) => g;
 </ul>
 
 <style>
-  .move-rules { list-style: none; padding: 0; display: grid; gap: var(--s-xs); grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr)); }
+  .move-rules { list-style: none; padding: 0; display: grid; gap: var(--s-xs); grid-template-columns: repeat(auto-fill, minmax(min(100%, 12rem), 1fr)); }
   .move-rules > li {
     display: grid; gap: var(--s-2xs); align-content: start; justify-items: center; text-align: center;
     padding: var(--s-s); border-radius: var(--r-m); background: #fff; border: 1px solid var(--line);

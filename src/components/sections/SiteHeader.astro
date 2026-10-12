@@ -1,27 +1,46 @@
 ---
 import { asset } from '../../data/site';
-// Sticky header: logo, section links, the mountain builder button and the publishers call to action (both kept on phones).
+// Sticky header. Wide screens: logo, section links, the mountain builder button and the publishers call to action.
+// Phones and portrait tablets (under 52rem): logo, the builder button and a menu button; the menu opens a panel with every section.
+// Without JavaScript the menu button stays hidden and the links simply wrap under the logo.
 ---
 <a class="skip" href="#main">Skip to content</a>
 
-<header class="site-header">
+<header class="site-header" data-header>
   <div class="wrap header-inner">
     <a class="brand" href="#top" aria-label="Magic Mountain, back to top">
       <!-- logo: Final Design/Logo/MagicMountain_Logo_final.svg -->
       <img src={asset('logo.svg')} alt="" width="26" height="26" />
       <span>Magic Mountain</span>
     </a>
-    <nav aria-label="Sections">
-      <a href="#rules">How to play</a>
-      <a class="nav-build" href="#play">
-        <svg viewBox="-24 -24 48 48" width="1.272em" height="1.272em" fill="none" stroke="currentColor" stroke-width="3.6" stroke-linejoin="round" aria-hidden="true"><polygon points="20,0 10,17.3 -10,17.3 -20,0 -10,-17.3 10,-17.3"/><path d="M 0,-8 v 16 M -8,0 h 16" stroke-linecap="round"/></svg>
-        Build a mountain
-      </a>
-      <a href="#table">Prototype</a>
-      <a class="nav-cta" href="#publishers">For publishers</a>
+
+    <a class="nav-build bar-build" href="#play">
+      <svg viewBox="-24 -24 48 48" width="1.272em" height="1.272em" fill="none" stroke="currentColor" stroke-width="3.6" stroke-linejoin="round" aria-hidden="true"><polygon points="20,0 10,17.3 -10,17.3 -20,0 -10,-17.3 10,-17.3"/><path d="M 0,-8 v 16 M -8,0 h 16" stroke-linecap="round"/></svg>
+      <span>Build</span>
+    </a>
+
+    <button type="button" class="menu-toggle" aria-expanded="false" aria-controls="site-menu" hidden data-menu-toggle>
+      <span class="bars" aria-hidden="true"><i></i><i></i><i></i></span>
+      <span class="visually-hidden">Menu</span>
+    </button>
+
+    <nav aria-label="Sections" class="nav" id="site-menu" data-menu>
+      <ul>
+        <li><a href="#rules">How to play</a></li>
+        <li class="menu-only"><a href="#video">Watch the video</a></li>
+        <li class="menu-cta"><a class="nav-build" href="#play">
+          <svg viewBox="-24 -24 48 48" width="1.272em" height="1.272em" fill="none" stroke="currentColor" stroke-width="3.6" stroke-linejoin="round" aria-hidden="true"><polygon points="20,0 10,17.3 -10,17.3 -20,0 -10,-17.3 10,-17.3"/><path d="M 0,-8 v 16 M -8,0 h 16" stroke-linecap="round"/></svg>
+          Build a mountain
+        </a></li>
+        <li class="menu-only"><a href="#gallery">Mountains to climb</a></li>
+        <li><a href="#table">Prototype</a></li>
+        <li class="menu-cta"><a class="nav-cta" href="#publishers">For publishers</a></li>
+        <li class="menu-only"><a href="#rulebook">Read the rulebook</a></li>
+      </ul>
     </nav>
   </div>
 </header>
+<div class="menu-scrim" data-menu-scrim hidden></div>
 
 <style>
   .skip {
@@ -33,49 +52,157 @@ import { asset } from '../../data/site';
 
   .site-header {
     position: sticky; top: 0; z-index: 10;
-    background: rgb(253 253 251 / 0.8);
-    backdrop-filter: blur(12px) saturate(1.4);
+    background: rgb(253 253 251 / 0.94); /* nearly solid: page content never shows through the logo */
+    backdrop-filter: blur(16px) saturate(1.4);
+    -webkit-backdrop-filter: blur(16px) saturate(1.4);
     border-bottom: 1px solid rgb(195 208 217 / 0.6);
   }
-  .header-inner { display: flex; align-items: center; justify-content: space-between; gap: var(--s-m); min-height: 3.618rem; }
-  .brand img { width: 1.618em; height: 1.618em; }
+  .header-inner { display: flex; align-items: center; gap: var(--s-s); min-height: 3.618rem; }
+  .brand img { width: 1.618em; height: 1.618em; flex: none; }
   .brand {
-    display: inline-flex; align-items: center; gap: var(--s-xs);
+    display: inline-flex; align-items: center; gap: var(--s-xs); flex: none;
+    margin-right: auto;
     font-family: var(--font-display); font-size: var(--step-1);
     color: var(--ink); text-decoration: none; white-space: nowrap;
   }
 
-  nav { display: flex; align-items: center; gap: var(--s-m); font-size: var(--step--1); font-weight: 600; }
-  nav a { color: var(--ink-soft); text-decoration: none; padding-block: var(--s-2xs); }
-  nav a:hover { color: var(--forest); }
-  nav .nav-cta {
-    padding: var(--s-3xs) var(--s-s); border-radius: 999px; white-space: nowrap;
+  /* Wide screens: the links sit in the bar */
+  .nav ul { list-style: none; margin: 0; padding: 0; display: flex; align-items: center; gap: var(--s-m); font-size: var(--step--1); font-weight: 600; }
+  .nav a { color: var(--ink-soft); text-decoration: none; padding-block: var(--s-2xs); white-space: nowrap; }
+  .nav a:hover { color: var(--forest); }
+  .menu-only { display: none; }
+
+  .nav .nav-cta {
+    padding: var(--s-3xs) var(--s-s); border-radius: 999px;
     color: #fff; background: var(--forest);
     transition: background var(--t-fast) var(--ease);
   }
-  nav .nav-cta:hover { color: #fff; background: var(--forest-hover); }
-  nav .nav-build {
+  .nav .nav-cta:hover { color: #fff; background: var(--forest-hover); }
+  .nav-build {
     display: inline-flex; align-items: center; gap: var(--s-2xs);
     padding: var(--s-3xs) var(--s-s); border-radius: 999px; white-space: nowrap;
+    font-size: var(--step--1); font-weight: 600; text-decoration: none;
     color: var(--ink); border: 1px solid var(--gold); background: rgb(243 227 198 / 0.45);
     transition: background var(--t-fast) var(--ease), color var(--t-fast);
   }
-  nav .nav-build svg { color: var(--gold); flex: none; }
-  .brand { flex: none; }
-  nav .nav-build:hover { color: var(--ink); background: var(--gold-soft); }
+  .nav .nav-build { color: var(--ink); padding-block: var(--s-3xs); }
+  .nav-build svg { color: var(--gold); flex: none; }
+  .nav-build:hover { color: var(--ink); background: var(--gold-soft); }
+  .header-inner > .bar-build { display: none; } /* the bar's own button is for phones only */
 
-  @media (max-width: 44rem) {
-    nav a:not(.nav-cta, .nav-build) { display: none; }
-    nav { gap: var(--s-xs); }
+  /* Menu button: three bars that turn into a cross */
+  .menu-toggle {
+    display: grid; place-items: center; flex: none;
+    width: 2.618rem; height: 2.618rem; padding: 0;
+    border: 1px solid var(--line); border-radius: 50%;
+    background: rgb(255 255 255 / 0.7); color: var(--ink); cursor: pointer;
+  }
+  .menu-toggle[hidden] { display: none; }
+  .menu-toggle:focus-visible, .nav a:focus-visible, .nav-build:focus-visible { outline: 2px solid var(--forest); outline-offset: 2px; }
+  .bars { display: grid; gap: 4px; width: 1.1rem; }
+  .bars i { display: block; height: 2px; border-radius: 2px; background: currentColor; transition: transform var(--t-fast) var(--ease), opacity var(--t-fast); }
+  [aria-expanded='true'] .bars i:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+  [aria-expanded='true'] .bars i:nth-child(2) { opacity: 0; }
+  [aria-expanded='true'] .bars i:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+
+  @media (max-width: 52rem) {
+    .header-inner { gap: var(--s-xs); }
     .brand { font-size: var(--step-0); }
+    .header-inner > .bar-build { display: inline-flex; }
+
+    /* Without JavaScript: the links wrap under the logo */
+    .site-header:not(.has-menu) .header-inner { flex-wrap: wrap; padding-block: var(--s-2xs); }
+    .site-header:not(.has-menu) .header-inner > .bar-build { display: none; }
+    .site-header:not(.has-menu) .nav { width: 100%; }
+    .site-header:not(.has-menu) .nav ul { flex-wrap: wrap; gap: var(--s-2xs) var(--s-s); }
+
+    /* With JavaScript: a solid panel that drops down under the bar, the page dimmed behind it */
+    .site-header.has-menu { background: var(--paper); }
+    .has-menu .nav {
+      position: absolute; left: 0; right: 0; top: 100%;
+      max-height: calc(100dvh - 3.618rem); overflow-y: auto; overscroll-behavior: contain;
+      background: var(--paper);
+      border-bottom: 1px solid var(--line);
+      box-shadow: 0 1rem 2rem -1rem rgb(34 48 60 / 0.3);
+      visibility: hidden; opacity: 0; transform: translateY(-0.382rem);
+      transition: opacity var(--t-fast) var(--ease), transform var(--t-fast) var(--ease), visibility 0s linear var(--t-fast);
+    }
+    .has-menu.open .nav { visibility: visible; opacity: 1; transform: none; transition-delay: 0s; }
+    .has-menu .nav ul {
+      display: flex; flex-direction: column; align-items: stretch; gap: 0;
+      width: min(100% - 2 * var(--gutter), var(--page)); margin-inline: auto;
+      padding-block: var(--s-2xs) calc(var(--s-m) + env(safe-area-inset-bottom, 0px));
+      font-size: var(--step-0);
+    }
+    .has-menu .menu-only { display: block; }
+    .has-menu .nav li { border-bottom: 1px solid rgb(195 208 217 / 0.6); }
+    .has-menu .nav a { display: flex; align-items: center; gap: var(--s-xs); min-height: 3.236rem; color: var(--ink); }
+    .has-menu .nav a:active { color: var(--forest); }
+
+    /* The two calls to action close the panel as full-width buttons */
+    .has-menu .nav li.menu-cta { order: 1; border-bottom: 0; padding-top: var(--s-xs); }
+    .has-menu .nav li.menu-cta + li.menu-cta { padding-top: var(--s-2xs); }
+    .has-menu .nav .menu-cta a {
+      justify-content: center; min-height: 3rem; border-radius: 999px; font-weight: 600;
+      padding: 0 var(--s-m); font-size: var(--step-0);
+    }
+    .has-menu .nav .menu-cta .nav-build { color: var(--ink); border: 1.5px solid var(--gold); background: var(--gold-soft); }
+    .has-menu .nav .menu-cta .nav-cta { color: #fff; background: var(--forest); }
   }
-  @media (max-width: 27rem) {
-    .brand span { display: none; } /* the logo alone, so both buttons fit */
+
+  /* Dims the page while the menu is open; tapping it closes the menu */
+  .menu-scrim {
+    position: fixed; inset: 0; z-index: 9;
+    background: rgb(34 48 60 / 0.38);
+    animation: scrim-in var(--t-fast) var(--ease);
   }
+  .menu-scrim[hidden] { display: none; }
+  @keyframes scrim-in { from { opacity: 0; } }
+  :global(html.menu-open) { overflow: hidden; } /* the page stays put under the open menu */
+
   @media (max-width: 22rem) {
-    .header-inner { gap: var(--s-2xs); }
-    nav { gap: var(--s-2xs); }
-    nav .nav-build svg { display: none; }
-    nav .nav-build, nav .nav-cta { padding-inline: var(--s-xs); }
+    .brand span { display: none; } /* the logo alone on the smallest phones */
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .has-menu .nav, .bars i { transition: none; }
+    .menu-scrim { animation: none; }
   }
 </style>
+
+<script>
+  // Phone menu: opens under the bar; closes on a link, Escape, a tap outside, or when the screen widens.
+  const header = document.querySelector<HTMLElement>('[data-header]');
+  const toggle = header?.querySelector<HTMLButtonElement>('[data-menu-toggle]');
+  const menu = header?.querySelector<HTMLElement>('[data-menu]');
+  const scrim = document.querySelector<HTMLElement>('[data-menu-scrim]');
+  if (header && toggle && menu && scrim) {
+    const narrow = matchMedia('(max-width: 52rem)');
+    const set = (open: boolean, focusToggle = false) => {
+      header.classList.toggle('open', open);
+      toggle.setAttribute('aria-expanded', String(open));
+      toggle.querySelector('.visually-hidden')!.textContent = open ? 'Close menu' : 'Menu';
+      scrim.hidden = !open;
+      document.documentElement.classList.toggle('menu-open', open);
+      if (!open && focusToggle) toggle.focus();
+    };
+    const apply = () => {
+      toggle.hidden = !narrow.matches;
+      header.classList.toggle('has-menu', narrow.matches);
+      if (!narrow.matches) set(false);
+    };
+    apply();
+    narrow.addEventListener('change', apply);
+    toggle.addEventListener('click', () => {
+      const open = toggle.getAttribute('aria-expanded') !== 'true';
+      set(open);
+      if (open) menu.querySelector<HTMLAnchorElement>('a')?.focus({ preventScroll: true });
+    });
+    menu.addEventListener('click', (e) => { if ((e.target as Element).closest('a')) set(false); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && header.classList.contains('open')) set(false, true); });
+    scrim.addEventListener('click', () => set(false));
+    // Keyboard: tabbing out of the header closes the menu
+    header.addEventListener('focusout', (e) => {
+      if (header.classList.contains('open') && e.relatedTarget && !header.contains(e.relatedTarget as Node)) set(false);
+    });
+  }
+</script>

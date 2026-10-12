@@ -141,7 +141,7 @@ const decks = [
   .dice { display: inline-flex; gap: 0.2rem; margin-left: auto; }
 
   /* One-line captions, numbered like the markers */
-  .legend { list-style: none; padding: 0; counter-reset: s; display: grid; gap: var(--s-2xs) var(--s-m); grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr)); font-size: var(--step--1); }
+  .legend { list-style: none; padding: 0; counter-reset: s; display: grid; gap: var(--s-2xs) var(--s-m); grid-template-columns: repeat(auto-fill, minmax(min(100%, 14rem), 1fr)); font-size: var(--step--1); }
   .legend li { counter-increment: s; display: flex; align-items: center; gap: var(--s-2xs); }
   .legend li::before {
     content: counter(s);
