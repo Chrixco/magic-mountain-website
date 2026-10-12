@@ -1,8 +1,10 @@
 ---
-// "Build the mountain": pick a layout (or shuffle a new one), then fill the empty frames by drawing from the four bags.
-// The default layout is rendered at build time so the board reads without JavaScript; the script adds layouts and drawing.
-import { terrain, designsOf, type Elevation } from '../data/game';
-import { layouts, buildBoard, viewBox, frameMarkup, frameCounts, SUMMIT_NAME } from '../scripts/board';
+// "Build your mountain": pick one of ours, one shared by players, shuffle one or build your own frame by frame,
+// then fill the empty frames by drawing from the four bags. Any mountain can be shared as a link.
+// The default layout is rendered at build time so the board reads without JavaScript; the script adds the rest.
+import { terrain, designsOf, contact, type Elevation } from '../data/game';
+import { community } from '../data/community';
+import { layouts, buildBoard, viewBox, frameMarkup, frameCounts, describeStart, decodeFrames, SUMMIT_NAME, BOX } from '../scripts/board';
 
 const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
 const first = layouts[0];
@@ -17,23 +19,46 @@ const bagData = terrain.flatMap((t) =>
 );
 
 const bagNames: Record<Elevation, string> = { 1: 'Green bag', 2: 'Teal bag', 3: 'Blue bag', 4: 'White bag' };
+const frameNames: Record<Elevation, string> = { 1: 'Green', 2: 'Teal', 3: 'Blue', 4: 'White' };
 const top = Math.max(...slots.map((s) => s.e)) as Elevation;
+
+// Mountains shared by players (src/data/community.ts); a bad code is skipped rather than breaking the page.
+const shared = community.filter((c) => decodeFrames(c.code));
+const invite = `mailto:${contact.email}?subject=${encodeURIComponent('A mountain for Magic Mountain')}`;
 ---
 
-<div class="builder" data-builder data-base={base} data-bags={JSON.stringify(bagData)}>
-  <div class="picker" role="group" aria-label="Choose a mountain">
-    {layouts.map((l, i) => (
-      <button type="button" class="pick" data-layout={l.id} aria-pressed={i === 0 ? 'true' : 'false'}>{l.name}</button>
-    ))}
-    <button type="button" class="pick shuffle" data-layout="random" aria-pressed="false">
-      <svg viewBox="-24 -24 48 48" width="1.272em" height="1.272em" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M -16,-8 h 8 q 6,0 10,8 q 4,8 10,8 h 6"/><path d="M -16,8 h 8 q 6,0 10,-8 q 4,-8 10,-8 h 6"/><path d="M 13,-13 l 5,5 l -5,5"/><path d="M 13,3 l 5,5 l -5,5"/></svg>
-      Shuffle a new mountain
-    </button>
+<div class="builder" data-builder data-base={base} data-email={contact.email} data-bags={JSON.stringify(bagData)}>
+  <div class="picker">
+    <div class="source" role="group" aria-labelledby="source-ours">
+      <span class="source-label" id="source-ours">Ours</span>
+      {layouts.map((l, i) => (
+        <button type="button" class="pick" data-layout={l.id} aria-pressed={i === 0 ? 'true' : 'false'}>{l.name}</button>
+      ))}
+    </div>
+    <div class="source" role="group" aria-labelledby="source-players">
+      <span class="source-label" id="source-players">From players</span>
+      {shared.map((c, i) => (
+        <button type="button" class="pick" data-layout={`community-${i}`} aria-pressed="false">{c.name}<span class="by">by {c.by}</span></button>
+      ))}
+      {!shared.length && <a class="pick invite" href={invite}>None yet. Be the first</a>}
+    </div>
+    <div class="source" role="group" aria-labelledby="source-yours">
+      <span class="source-label" id="source-yours">Yours</span>
+      <button type="button" class="pick shuffle" data-layout="random" aria-pressed="false">
+        <svg viewBox="-24 -24 48 48" width="1.272em" height="1.272em" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M -16,-8 h 8 q 6,0 10,8 q 4,8 10,8 h 6"/><path d="M -16,8 h 8 q 6,0 10,-8 q 4,-8 10,-8 h 6"/><path d="M 13,-13 l 5,5 l -5,5"/><path d="M 13,3 l 5,5 l -5,5"/></svg>
+        Shuffle a mountain
+      </button>
+      <button type="button" class="pick build" data-layout="build" aria-pressed="false">
+        <svg viewBox="-24 -24 48 48" width="1.272em" height="1.272em" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linejoin="round" aria-hidden="true"><polygon points="20,0 10,17.3 -10,17.3 -20,0 -10,-17.3 10,-17.3"/><path d="M 0,-8 v 16 M -8,0 h 16" stroke-linecap="round"/></svg>
+        Build your own
+      </button>
+    </div>
   </div>
 
   <div class="board">
     <svg viewBox={viewBox(slots)} role="img" aria-labelledby="board-title" class="board-svg">
       <title id="board-title" data-title>{first.name}: a mountain of empty frames, green at the foot and the Summit on the highest frame.</title>
+      <g class="ghosts" data-ghosts></g>
       <g class="frames" data-frames set:html={frames} />
       <g class="tiles" data-tiles></g>
       <g class="fixed" data-fixed set:html={fixed} />
@@ -45,11 +70,43 @@ const top = Math.max(...slots.map((s) => s.e)) as Elevation;
       <h3 data-name>{first.name}</h3>
       <p data-blurb>{first.blurb}</p>
       <p class="frames-used" data-frames-used>
-        {Object.values(counts).reduce((a, b) => a + b, 0)} of the 14 frames in the box: {counts[1]} green, {counts[2]} teal{counts[3] ? `, ${counts[3]} blue` : ''}{counts[4] ? `, ${counts[4]} white` : ''}. {SUMMIT_NAME[top]} Summit.
+        {Object.values(counts).reduce((a, b) => a + b, 0)} of 14 frames · {SUMMIT_NAME[top]} Summit
       </p>
-      <p class="fair" data-fair>{start.count} START tiles, each {start.steps} steps and {start.energy} Energy from the Summit, so no seat starts closer.</p>
+      <p class="fair" data-fair>{describeStart(start)}</p>
+      <p class="share" data-share>
+        <button type="button" class="link" data-copy>Copy link</button>
+        <a class="link" data-send href={invite}>Send it to us</a>
+        <span class="copied" data-copied aria-live="polite"></span>
+      </p>
     </div>
-    <div class="bags" role="group" aria-label="Draw bags">
+    <div class="editor" data-editor hidden>
+      <p class="muted" data-hint>Pick a colour, then tap <strong>+</strong> to add a frame. Tap a frame to recolour it, again to remove it.</p>
+      <div class="bags" role="radiogroup" aria-label="Frame colour">
+        {([1, 2, 3, 4] as Elevation[]).map((e) => (
+          <button type="button" class={`bag swatch e${e}`} role="radio" aria-checked={e === 1 ? 'true' : 'false'} data-colour={e}>
+            <span class="hex-badge">{e}</span>
+            <span class="bag-text">
+              <span class="bag-name">{frameNames[e]} frame</span>
+              <span class="bag-count" data-left={e}>{BOX[e]} left</span>
+            </span>
+          </button>
+        ))}
+        <button type="button" class="bag swatch summit-tool" role="radio" aria-checked="false" data-tool="summit">
+          <span class="hex-badge">▲</span>
+          <span class="bag-text">
+            <span class="bag-name">Summit</span>
+            <span class="bag-count" data-summit-state>Placed for you</span>
+          </span>
+        </button>
+      </div>
+      <ul class="problems" data-problems aria-live="polite"></ul>
+      <div class="actions">
+        <button type="button" class="button" data-play>Play it</button>
+        <button type="button" class="button ghost" data-undo disabled>Undo</button>
+        <button type="button" class="button ghost" data-scratch>Start over</button>
+      </div>
+    </div>
+    <div class="bags" role="group" aria-label="Draw bags" data-play-only>
       {([1, 2, 3, 4] as Elevation[]).map((e) => (
         <button type="button" class={`bag e${e}`} data-bag={e} disabled>
           <span class="hex-badge">{e}</span>
@@ -60,12 +117,12 @@ const top = Math.max(...slots.map((s) => s.e)) as Elevation;
         </button>
       ))}
     </div>
-    <div class="actions">
+    <div class="actions" data-play-only>
       <button type="button" class="button" data-fill disabled>Fill every frame</button>
       <button type="button" class="button ghost" data-reset disabled>Clear the frames</button>
     </div>
-    <div class="last" data-last aria-live="polite">
-      <p class="muted">Draw a tile from a bag. It goes into an empty slot of the frame with the same colour.</p>
+    <div class="last" data-last aria-live="polite" data-play-only>
+      <p class="muted">Draw a tile. It lands in a frame of its colour.</p>
     </div>
   </div>
 </div>
@@ -81,9 +138,17 @@ const top = Math.max(...slots.map((s) => s.e)) as Elevation;
     .picker { grid-column: 1 / -1; }
   }
 
-  .picker { display: flex; flex-wrap: wrap; gap: var(--s-2xs); }
+  /* Three sources, one row each: our mountains, players' mountains, yours */
+  .picker { display: grid; gap: var(--s-xs); }
+  .source { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-2xs); }
+  .source-label {
+    min-width: 7.5rem;
+    font-size: var(--step--1); font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--ink-soft);
+  }
   @media (max-width: 40rem) {
-    .picker { flex-wrap: nowrap; overflow-x: auto; margin-inline: calc(-1 * var(--gutter)); padding: var(--s-3xs) var(--gutter); scrollbar-width: none; }
+    .source { flex-wrap: nowrap; overflow-x: auto; margin-inline: calc(-1 * var(--gutter)); padding: var(--s-3xs) var(--gutter); scrollbar-width: none; }
+    .source-label { min-width: 0; flex: none; }
     .pick { flex: none; }
   }
   .pick {
@@ -102,7 +167,12 @@ const top = Math.max(...slots.map((s) => s.e)) as Elevation;
   }
   .pick:hover { background: var(--glass-hover-fill); color: var(--forest); }
   .pick[aria-pressed='true'] { background: linear-gradient(160deg, rgb(52 70 86 / 0.9), rgb(34 48 60 / 0.82)); border-color: rgb(255 255 255 / 0.35); color: #fff; }
-  .pick.shuffle { border: 1px dashed var(--gold); }
+  .pick .by { font-weight: 400; color: var(--ink-soft); }
+  .pick[aria-pressed='true'] .by { color: rgb(255 255 255 / 0.8); }
+  .pick.invite { font-weight: 400; color: var(--ink-soft); text-decoration: none; border-style: dashed; }
+  .pick.invite:hover { color: var(--forest); }
+  .pick.shuffle, .pick.build { border: 1px dashed var(--gold); }
+  .pick.build[aria-pressed='true'] { background: linear-gradient(160deg, rgb(46 91 62 / 0.95), rgb(35 72 50 / 0.88)); border: 1px solid rgb(255 255 255 / 0.5); color: #fff; }
   .pick.shuffle[aria-pressed='true'] { background: linear-gradient(160deg, rgb(222 160 76 / 0.92), rgb(200 132 43 / 0.85)); border: 1px solid rgb(255 255 255 / 0.6); color: #1d1a14; }
 
   .board {
@@ -124,7 +194,7 @@ const top = Math.max(...slots.map((s) => s.e)) as Elevation;
   }
 
   .board :global(.hole) { fill: rgb(221 231 237 / 0.55); } /* the sketches show through the empty slots */
-  .board :global(.slot.e4 .hole) { fill: rgb(228 235 240 / 0.6); }
+  .board :global(.slot.e4 .hole) { fill: rgb(244 249 253 / 0.7); }
   .board :global(.fixed-summit polygon) { fill: var(--gold); stroke: #fff; stroke-width: 3; }
   .board :global(.summit-tile) { filter: drop-shadow(0 3px 4px rgb(107 69 18 / 0.4)); }
   .board :global(.summit-tile .summit-ring) { fill: none; stroke: var(--gold); stroke-width: 4; }
@@ -134,11 +204,47 @@ const top = Math.max(...slots.map((s) => s.e)) as Elevation;
   .board :global(.fixed-start text) { fill: #2f5ea8; font-size: 13px; }
   .board :global(.tile-img) { transform-box: fill-box; transform-origin: center; }
 
+  /* Build your own: empty frame positions, and frames you can paint or take away */
+  .board :global(.spot) { cursor: pointer; outline: none; }
+  .board :global(.spot polygon) { fill: rgb(255 255 255 / 0.25); stroke: var(--ink-soft); stroke-width: 1.5; stroke-dasharray: 4 5; opacity: 0.55; transition: fill var(--t-fast), opacity var(--t-fast); }
+  .board :global(.spot text) { fill: var(--ink-soft); font: 600 30px var(--font-body); pointer-events: none; }
+  .board :global(.spot:hover polygon), .board :global(.spot:focus-visible polygon) { fill: var(--paint); opacity: 0.55; stroke: var(--paint); }
+  .board :global(.spot:focus-visible polygon) { stroke-dasharray: none; stroke-width: 3; }
+  .builder.editing .board :global(.slot) { cursor: pointer; }
+  .builder.editing .board :global(.slot:hover polygon) { filter: brightness(1.12); }
+  .builder.editing .board :global(.hole) { fill: rgb(255 255 255 / 0.3); }
+  .builder.editing .board :global(.fixed) { pointer-events: none; }
+
   .controls { display: grid; gap: var(--s-m); }
+  .controls [hidden] { display: none; }
+  .builder { --paint: var(--e1); }
+  .builder[data-paint='2'] { --paint: var(--e2); }
+  .builder[data-paint='3'] { --paint: var(--e3); }
+  .builder[data-paint='4'] { --paint: var(--e4); }
   .about h3 { font-size: var(--step-2); }
   .about p { color: var(--ink-soft); margin-top: var(--s-3xs); }
   .about .frames-used { font-size: var(--step--1); }
   .about .fair { font-size: var(--step--1); color: #2f5ea8; font-weight: 600; }
+  .about .fair.uneven { color: var(--lava); }
+  .share { display: flex; flex-wrap: wrap; gap: var(--s-2xs) var(--s-s); align-items: baseline; font-size: var(--step--1); }
+  .link { padding: 0; border: 0; background: none; font: inherit; font-weight: 600; color: var(--forest); text-decoration: underline; text-underline-offset: 0.2em; cursor: pointer; }
+  .link:hover { color: var(--forest-hover); }
+  .copied { color: var(--ink-soft); }
+
+  .editor { display: grid; gap: var(--s-s); }
+  .swatch[aria-checked='true'] { background: var(--glass-hover-fill); box-shadow: var(--glass-shadow), inset 0 0 0 2px var(--c); }
+  .swatch.e4[aria-checked='true'] { box-shadow: var(--glass-shadow), inset 0 0 0 2px var(--e4); }
+  .summit-tool { --c: var(--gold); grid-column: 1 / -1; }
+  .summit-tool .hex-badge { background: var(--gold); font-size: var(--step--1); }
+  .builder.placing .board :global(.slot) { cursor: not-allowed; }
+  .builder.placing .board :global(.slot.peak) { cursor: pointer; }
+  .builder.placing .board :global(.slot.peak polygon) { stroke: var(--gold); stroke-width: 4; }
+  .builder.placing .board :global(.slot:not(.peak)) { opacity: 0.55; }
+  .builder.placing .board :global(.spot) { display: none; }
+  .problems { margin: 0; padding: 0; list-style: none; display: grid; gap: var(--s-3xs); font-size: var(--step--1); }
+  .problems:empty { display: none; }
+  .problems li { color: var(--lava); font-weight: 600; }
+  .problems li.ok { color: var(--forest); }
 
   .bags {
     display: grid;
@@ -191,8 +297,13 @@ const top = Math.max(...slots.map((s) => s.e)) as Elevation;
 </style>
 
 <script>
-  import { layouts, buildBoard, neighbourIds, viewBox, frameMarkup, frameCounts, randomLayout, SUMMIT_NAME, type Elev, type Slot, type Layout } from '../scripts/board';
+  import {
+    layouts, buildBoard, neighbourIds, viewBox, frameMarkup, frameCounts, randomLayout, describeStart, layoutIssues,
+    framesOf, openFrames, ghostMarkup, frameCells, encodeFrames, decodeFrames, decodeMountain, canHoldSummit, SUMMIT_NAME, BOX,
+    type Elev, type Slot, type Layout, type FrameSpec, type StartInfo,
+  } from '../scripts/board';
   import { iconMarkup } from '../data/icons';
+  import { community } from '../data/community';
 
   type Tile = { e: Elev; name: string; gear: string[] | 'lava'; src: string; viewpoint: boolean };
 
@@ -202,7 +313,7 @@ const top = Math.max(...slots.map((s) => s.e)) as Elevation;
   const S = 40, W = 2 * S, H = Math.sqrt(3) * S;
   const EASE = 'cubic-bezier(.22,.8,.24,1)';
   const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)');
-  const HINT = '<p class="muted">Draw a tile from a bag. It goes into an empty slot of the frame with the same colour.</p>';
+  const HINT = '<p class="muted">Draw a tile. It lands in a frame of its colour.</p>';
 
   for (const root of document.querySelectorAll<HTMLElement>('[data-builder]')) {
     const all: Tile[] = JSON.parse(root.dataset.bags!);
@@ -216,7 +327,28 @@ const top = Math.max(...slots.map((s) => s.e)) as Elevation;
     const pickButtons = [...root.querySelectorAll<HTMLButtonElement>('[data-layout]')];
     const fillBtn = $<HTMLButtonElement>('[data-fill]');
     const resetBtn = $<HTMLButtonElement>('[data-reset]');
+    const ghostLayer = $<SVGGElement>('[data-ghosts]');
+    const editor = $<HTMLElement>('[data-editor]');
+    const playOnly = [...root.querySelectorAll<HTMLElement>('[data-play-only]')];
+    const swatches = [...root.querySelectorAll<HTMLButtonElement>('[data-colour]')];
+    const summitTool = $<HTMLButtonElement>('[data-tool="summit"]');
+    const hint = $<HTMLElement>('[data-hint]');
+    const HINT_FRAMES = hint.innerHTML;
+    const HINT_SUMMIT = 'Tap a gold-outlined slot to move the Summit. The START tiles follow. Tap the Summit again to reset it.';
+    const problems = $<HTMLUListElement>('[data-problems]');
+    const playBtn = $<HTMLButtonElement>('[data-play]');
+    const undoBtn = $<HTMLButtonElement>('[data-undo]');
+    const copied = $<HTMLElement>('[data-copied]');
+    const sendLink = $<HTMLAnchorElement>('[data-send]');
     const NS = 'http://www.w3.org/2000/svg';
+
+    // Mountains shared by players, as layouts.
+    const shared: Layout[] = community.flatMap((c, i) => {
+      const frames = decodeFrames(c.code);
+      return frames ? [{ id: `community-${i}`, name: c.name, by: c.by, blurb: c.blurb ?? `Built by ${c.by}.`, frames }] : [];
+    });
+    const byId = (id: string) => layouts.find((l) => l.id === id) ?? shared.find((l) => l.id === id);
+    let current: Layout = layouts[0];
 
     let slots: Slot[] = buildBoard(layouts[0]).slots;
     let nb: number[][] = neighbourIds(slots);
@@ -262,26 +394,53 @@ const top = Math.max(...slots.map((s) => s.e)) as Elevation;
       resetBtn.disabled = filling || filled.size === 0;
     }
 
+    function showFair(st: StartInfo) {
+      const fair = $<HTMLElement>('[data-fair]');
+      fair.textContent = describeStart(st);
+      fair.classList.toggle('uneven', !st.same || st.count < 2);
+    }
+
+    function showCounts() {
+      const counts = frameCounts(slots);
+      const total = Object.values(counts).reduce((a, b) => a + b, 0);
+      const top = Math.max(...slots.map((s) => s.e)) as Elev;
+      const parts = [`${counts[1]} green`, counts[2] && `${counts[2]} teal`, counts[3] && `${counts[3]} blue`, counts[4] && `${counts[4]} white`].filter(Boolean);
+      $('[data-frames-used]').textContent = `${total} of 14 frames (${parts.join(', ')}) · ${SUMMIT_NAME[top]} Summit`;
+    }
+
+    /** A link that opens this mountain, and an email that sends it to us. */
+    const shareUrl = (fs: FrameSpec[], summit?: [number, number]) => `${location.origin}${location.pathname}#mountain=${encodeFrames(fs, summit)}`;
+    const summitOf = (): [number, number] | undefined => {
+      const s = slots.find((x) => x.kind === 'summit');
+      return s && [s.q, s.r];
+    };
+    function updateShare() {
+      const url = editing ? shareUrl(draft, draftSummit) : shareUrl(framesOf(current), summitOf());
+      const subject = 'A mountain for Magic Mountain';
+      const body = `Here is a mountain I built:\n${url}\n\nName: \nBuilt by (as you'd like to be credited): \n`;
+      sendLink.href = `mailto:${root.dataset.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      copied.textContent = '';
+    }
+
     function showLayout(l: Layout) {
+      stopEditing();
+      current = l;
       const board = buildBoard(l, 40, Math.random); // fair START spots, different each time
       slots = board.slots;
       nb = neighbourIds(slots);
       measure();
-      $('[data-fair]').textContent = `${board.start.count} START tiles, each ${board.start.steps} steps and ${board.start.energy} Energy from the Summit, so no seat starts closer.`;
+      showFair(board.start);
       const { frames, fixed } = frameMarkup(slots, 40, root.dataset.base!);
       svg.setAttribute('viewBox', viewBox(slots));
       framesLayer.innerHTML = frames;
       fixedLayer.innerHTML = fixed;
       reset();
 
-      const counts = frameCounts(slots);
-      const total = Object.values(counts).reduce((a, b) => a + b, 0);
-      const top = Math.max(...slots.map((s) => s.e)) as Elev;
-      const parts = [`${counts[1]} green`, `${counts[2]} teal`, counts[3] && `${counts[3]} blue`, counts[4] && `${counts[4]} white`].filter(Boolean);
+      showCounts();
       $('[data-name]').textContent = l.name;
       $('[data-blurb]').textContent = l.blurb;
-      $('[data-frames-used]').textContent = `${total} of the 14 frames in the box: ${parts.join(', ')}. ${SUMMIT_NAME[top]} Summit.`;
       $('[data-title]').textContent = `${l.name}: a mountain of empty frames, green at the foot and the Summit on the highest frame.`;
+      updateShare();
 
       // The mountain rises from the meadows to the Summit, one elevation after the other.
       if (!reduceMotion.matches) {
@@ -407,19 +566,201 @@ const top = Math.max(...slots.map((s) => s.e)) as Elevation;
       }
       filling = false;
       update();
-      last.innerHTML = '<p>A mountain nobody has climbed before. Clear the frames, or pick another shape, and every draw builds a different one.</p>';
+      last.innerHTML = '<p>A mountain nobody has climbed. Clear it and draw again: it will never repeat.</p>';
     }
 
+    // ---------- Build your own ----------
+    // The draft starts from the mountain on screen, so any of ours (or a shuffle) can be the first sketch.
+    let editing = false;
+    let draft: FrameSpec[] = [];
+    let draftSummit: [number, number] | undefined; // chosen by the builder; undefined = placed automatically
+    let history: { frames: FrameSpec[]; summit?: [number, number] }[] = [];
+    let paint: Elev = 1;
+    let placing = false; // the Summit tool is selected
+    const left = (e: Elev) => BOX[e] - draft.filter((f) => f[2] === e).length;
+    const press = (id: string | null) => pickButtons.forEach((p) => p.setAttribute('aria-pressed', String(p.dataset.layout === id)));
+
+    function setMode(edit: boolean) {
+      editing = edit;
+      placing = false;
+      root.classList.toggle('editing', edit);
+      root.classList.remove('placing');
+      editor.hidden = !edit;
+      playOnly.forEach((el) => (el.hidden = edit));
+      if (!edit) ghostLayer.replaceChildren();
+    }
+
+    function startEditing(from: FrameSpec[], summit?: [number, number]) {
+      run++; // stop an unfinished fill
+      filling = false;
+      draft = from.map((f) => [...f] as FrameSpec);
+      draftSummit = summit;
+      history = [];
+      setMode(true);
+      layer.replaceChildren();
+      $('[data-name]').textContent = 'Your mountain';
+      $('[data-blurb]').textContent = 'Shape it frame by frame. The START tiles keep every seat fair.';
+      renderDraft();
+    }
+
+    function stopEditing() {
+      if (editing) setMode(false);
+    }
+
+    function renderDraft() {
+      const spots = openFrames(draft);
+      ghostLayer.innerHTML = ghostMarkup(spots, 40);
+      const errors = layoutIssues(draft);
+      let start: StartInfo | undefined;
+      if (draftSummit && !canHoldSummit(draft, draftSummit)) draftSummit = undefined; // its frame changed: place it again
+      if (draft.length) {
+        const board = buildBoard({ id: 'draft', name: '', blurb: '', frames: draft, summit: draftSummit }); // steady START spots while editing
+        slots = board.slots;
+        start = board.start;
+        const { frames, fixed } = frameMarkup(slots, 40, root.dataset.base!);
+        framesLayer.innerHTML = frames;
+        fixedLayer.innerHTML = fixed;
+        const top = Math.max(...draft.map((f) => f[2]));
+        framesLayer.querySelectorAll<SVGGElement>('.slot').forEach((g) => g.classList.toggle('peak', Number(g.dataset.e) === top));
+        showFair(start);
+        showCounts();
+      } else {
+        slots = [];
+        framesLayer.replaceChildren();
+        fixedLayer.replaceChildren();
+        $('[data-fair]').textContent = '';
+        $('[data-frames-used]').textContent = '';
+      }
+      const points = [...slots, ...spots.flatMap(([a, b]) => frameCells(a, b, 40))];
+      svg.setAttribute('viewBox', viewBox(points));
+
+      for (const sw of swatches) {
+        const e = Number(sw.dataset.colour) as Elev;
+        const n = left(e);
+        sw.setAttribute('aria-checked', String(!placing && e === paint));
+        $(`[data-left="${e}"]`).textContent = n ? `${n} left` : 'None left';
+      }
+      root.dataset.paint = String(paint);
+      root.classList.toggle('placing', placing);
+      summitTool.setAttribute('aria-checked', String(placing));
+      $('[data-summit-state]').textContent = draftSummit ? 'Placed by you' : 'Placed for you';
+      hint.innerHTML = placing ? HINT_SUMMIT : HINT_FRAMES;
+
+      const notes = [...errors];
+      if (!errors.length && start && start.count < 4) {
+        notes.push(start.count < 2
+          ? 'No fair start yet. Add green frames at the foot.'
+          : `Fair for ${start.count} players. Add a green frame for 4.`);
+      }
+      problems.innerHTML = notes.map((n) => `<li>${n}</li>`).join('') ||
+        '<li class="ok">Ready for 4 players.</li>';
+      playBtn.disabled = errors.length > 0 || !start || start.count < 2;
+      undoBtn.disabled = !history.length;
+      updateShare();
+    }
+
+    function edit(change: () => void) {
+      history.push({ frames: draft.map((f) => [...f] as FrameSpec), summit: draftSummit });
+      change();
+      renderDraft();
+    }
+
+    function addFrame(a: number, b: number) {
+      if (!left(paint)) {
+        problems.innerHTML = `<li>No ${COLOUR[paint]} frames left.</li>`;
+        return;
+      }
+      edit(() => draft.push([a, b, paint]));
+      // keep the keyboard where it was: on the next open spot nearby
+      ghostLayer.querySelector<SVGGElement>('.spot')?.focus({ preventScroll: true });
+    }
+
+    function touchFrame(index: number) {
+      const f = draft[index];
+      if (!f) return;
+      if (f[2] === paint) edit(() => draft.splice(index, 1));
+      else if (left(paint)) edit(() => (f[2] = paint));
+      else problems.innerHTML = `<li>No ${COLOUR[paint]} frames left.</li>`;
+    }
+
+    /** Summit tool: put the Summit on a slot of a highest frame, or tap it again to let it place itself. */
+    function placeSummit(id: number) {
+      const s = slots[id];
+      if (!s) return;
+      if (s.kind === 'summit') return edit(() => (draftSummit = undefined));
+      if (!canHoldSummit(draft, [s.q, s.r])) {
+        problems.innerHTML = '<li>The Summit goes in a highest frame. Tap a gold-outlined slot.</li>';
+        return;
+      }
+      edit(() => (draftSummit = [s.q, s.r]));
+    }
+
+    svg.addEventListener('click', (ev) => {
+      if (!editing) return;
+      const target = ev.target as Element;
+      if (placing) {
+        const slot = target.closest<SVGGElement>('.slot');
+        if (slot) placeSummit(Number(slot.dataset.slot));
+        return;
+      }
+      const ghost = target.closest<SVGGElement>('.spot');
+      if (ghost) return addFrame(Number(ghost.dataset.a), Number(ghost.dataset.b));
+      const slot = target.closest<SVGGElement>('.slot');
+      if (slot) touchFrame(Number(slot.dataset.frame));
+    });
+    svg.addEventListener('keydown', (ev) => {
+      const ghost = (ev.target as Element).closest?.<SVGGElement>('.spot');
+      if (!editing || !ghost || (ev.key !== 'Enter' && ev.key !== ' ')) return;
+      ev.preventDefault();
+      addFrame(Number(ghost.dataset.a), Number(ghost.dataset.b));
+    });
+    swatches.forEach((sw) => sw.addEventListener('click', () => { paint = Number(sw.dataset.colour) as Elev; placing = false; renderDraft(); }));
+    summitTool.addEventListener('click', () => { placing = !placing; renderDraft(); });
+    undoBtn.addEventListener('click', () => {
+      const last = history.pop();
+      if (last) { draft = last.frames; draftSummit = last.summit; renderDraft(); }
+    });
+    $<HTMLButtonElement>('[data-scratch]').addEventListener('click', () => edit(() => { draft = [[0, 0, 1]]; draftSummit = undefined; paint = 1; placing = false; }));
+    playBtn.addEventListener('click', () => {
+      press('build');
+      showLayout({ id: 'custom', name: 'Your mountain', blurb: 'Built at your table. Share the link so others can climb it.', frames: draft.map((f) => [...f] as FrameSpec), summit: draftSummit });
+      press('build');
+    });
+
+    $<HTMLButtonElement>('[data-copy]').addEventListener('click', async () => {
+      const url = editing ? shareUrl(draft, draftSummit) : shareUrl(framesOf(current), summitOf());
+      try {
+        await navigator.clipboard.writeText(url);
+        copied.textContent = 'Copied.';
+      } catch {
+        copied.textContent = url; // copy it by hand
+      }
+    });
+
+    // ---------- Picking a mountain ----------
     pickButtons.forEach((b) =>
       b.addEventListener('click', () => {
-        pickButtons.forEach((p) => p.setAttribute('aria-pressed', String(p === b)));
         const id = b.dataset.layout!;
-        showLayout(id === 'random' ? randomLayout() : layouts.find((l) => l.id === id)!);
+        press(id);
+        if (id === 'build') return startEditing(framesOf(current), summitOf());
+        showLayout(id === 'random' ? randomLayout() : byId(id)!);
       }),
     );
     bagButtons.forEach((b) => b.addEventListener('click', () => draw(Number(b.dataset.bag) as Elev)));
     fillBtn.addEventListener('click', fillAll);
     resetBtn.addEventListener('click', reset);
     reset();
+
+    // A shared link (#mountain=…) opens that mountain.
+    function openShared() {
+      const m = /#mountain=([\w.\-]+)/.exec(location.hash);
+      const link = m && decodeMountain(m[1]);
+      if (!link || layoutIssues(link.frames).length) return;
+      press(null);
+      showLayout({ id: 'shared', name: 'A shared mountain', blurb: 'Shared with you. Fill it from the bags, or remix it.', ...link });
+      root.closest('section')?.scrollIntoView();
+    }
+    openShared();
+    addEventListener('hashchange', openShared);
   }
 </script>

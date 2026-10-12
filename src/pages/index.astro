@@ -7,6 +7,7 @@ import Base from '../layouts/Base.astro';
 import SiteHeader from '../components/sections/SiteHeader.astro';
 import Hero from '../components/sections/Hero.astro';
 import Play from '../components/sections/Play.astro';
+import Gallery from '../components/sections/Gallery.astro';
 import Rules from '../components/sections/Rules.astro';
 import Elevations from '../components/sections/Elevations.astro';
 import GoldenTickets from '../components/sections/GoldenTickets.astro';
@@ -32,7 +33,6 @@ const socialImage = await getImage({ src: cover, width: 1200, height: 630, fit: 
 
   <main id="main">
     <Hero />           <!-- title and the living map -->
-    <Play />           <!-- build a mountain from the four bags -->
     <Rules />          <!-- how to play: setup, your turn, moving, winning -->
     <Elevations />     <!-- four elevations and their tiles -->
     <GoldenTickets />  <!-- holo tickets at the viewpoints -->
@@ -40,6 +40,8 @@ const socialImage = await getImage({ src: cover, width: 1200, height: 630, fit: 
     <Engine />         <!-- energy, food and the budget chart -->
     <Gear />           <!-- eight pieces of 3D-printed gear -->
     <Mountains />      <!-- Short, Standard, Expedition -->
+    <Play />           <!-- once the game is explained: build a mountain (ours, from players, or your own) -->
+    <Gallery />        <!-- every ready-made mountain, to show off and climb -->
     <Prototype />      <!-- playtest photos; play it / publish it -->
     <Publishers />     <!-- pitch and what's in the box -->
   </main>

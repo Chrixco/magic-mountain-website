@@ -1,0 +1,99 @@
+---
+// The gallery: every ready-made mountain (ours, then the ones players shared), drawn from the same frames as the
+// builder, each with its size and the climb every seat faces. "Climb this one" opens it in the builder above.
+import { community } from '../../data/community';
+import { layouts, buildBoard, frameMarkup, frameCounts, viewBox, decodeFrames, SUMMIT_NAME, type Layout, type Elev } from '../../scripts/board';
+
+const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
+const shared: Layout[] = community.flatMap((c, i) => {
+  const frames = decodeFrames(c.code);
+  return frames ? [{ id: `community-${i}`, name: c.name, by: c.by, blurb: c.blurb ?? `Built by ${c.by}.`, frames }] : [];
+});
+const names = ['green', 'teal', 'blue', 'white'];
+
+const cards = [...layouts, ...shared].map((l) => {
+  const { slots, start } = buildBoard(l);
+  const { frames, fixed } = frameMarkup(slots, 40, base);
+  const counts = frameCounts(slots);
+  const total = Object.values(counts).reduce((a, b) => a + b, 0);
+  const top = Math.max(...slots.map((s) => s.e)) as Elev;
+  const mix = start.mix.map((n, i) => (n ? `${n} ${names[i]}` : '')).filter(Boolean).join(', ');
+  return { l, frames, fixed, view: viewBox(slots), total, summit: SUMMIT_NAME[top], start, mix };
+});
+---
+<section class="section" id="gallery">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Mountains ready to climb</h2>
+      <p>Our favourite layouts, plus the best ones players send us. Every one is fair for every seat.</p>
+    </div>
+
+    <ul class="gallery">
+      {cards.map((c) => (
+        <li class="card glass">
+          <svg viewBox={c.view} role="img" aria-label={`${c.l.name}: ${c.total} frames, ${c.summit} Summit.`} class="thumb">
+            <g set:html={c.frames} />
+            <g set:html={c.fixed} />
+          </svg>
+          <div class="card-text">
+            <h3>{c.l.name}</h3>
+            {c.l.by && <p class="by">by {c.l.by}</p>}
+            <p>{c.l.blurb}</p>
+            <dl>
+              <div><dt>Frames</dt><dd>{c.total} of 14</dd></div>
+              <div><dt>Summit</dt><dd>{c.summit}</dd></div>
+              <div><dt>Players</dt><dd>up to {c.start.count}</dd></div>
+              <div><dt>Every climb</dt><dd>{c.start.steps} steps · {c.mix}</dd></div>
+            </dl>
+            <button type="button" class="button ghost" data-climb={c.l.id}>Climb it</button>
+          </div>
+        </li>
+      ))}
+      <li class="card glass yours">
+        <div class="card-text">
+          <h3>Yours could be next</h3>
+          <p>Build one, send us the link, and we’ll feature it here with your name.</p>
+          <button type="button" class="button" data-climb="build">Build your own</button>
+        </div>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<style>
+  .gallery {
+    list-style: none; margin: 0; padding: 0;
+    display: grid; gap: var(--s-m);
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr));
+  }
+  .card { display: grid; grid-template-rows: auto 1fr; border-radius: var(--r-l); overflow: hidden; }
+  .thumb {
+    width: 100%; height: auto; aspect-ratio: 1.618; display: block;
+    padding: var(--s-xs);
+    background: linear-gradient(180deg, rgb(255 255 255 / 0.35), rgb(221 231 237 / 0.35));
+    border-bottom: 1px solid var(--glass-edge);
+  }
+  .thumb :global(.hole) { fill: rgb(221 231 237 / 0.55); }
+  .thumb :global(.summit-ring) { fill: none; stroke: var(--gold); stroke-width: 4; }
+  .card-text { display: flex; flex-direction: column; gap: var(--s-2xs); padding: var(--s-s) var(--s-m) var(--s-m); }
+  .card h3 { font-size: var(--step-1); }
+  .card p { color: var(--ink-soft); font-size: var(--step--1); }
+  .card .by { color: var(--gold); font-weight: 600; margin-top: calc(-1 * var(--s-3xs)); }
+  .card dl { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-2xs) var(--s-s); margin: var(--s-2xs) 0; font-size: var(--step--1); }
+  .card dt { font-size: var(--step--2); letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-soft); }
+  .card dd { margin: 0; font-weight: 600; }
+  .card dl div:last-child { grid-column: 1 / -1; }
+  .card .button { align-self: flex-start; margin-top: auto; }
+  .yours { grid-template-rows: 1fr; border: 1px dashed var(--gold); }
+  .yours .card-text { justify-content: center; }
+</style>
+
+<script>
+  // "Climb this one": open that mountain in the builder and scroll to it.
+  for (const b of document.querySelectorAll<HTMLButtonElement>('[data-climb]')) {
+    b.addEventListener('click', () => {
+      document.querySelector<HTMLButtonElement>(`[data-builder] [data-layout="${b.dataset.climb}"]`)?.click();
+      document.getElementById('play')?.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+    });
+  }
+</script>

@@ -1,6 +1,6 @@
 ---
 import { asset } from '../../data/site';
-// Sticky header: logo, section links, and the publishers call to action (the one link kept on phones).
+// Sticky header: logo, section links, the mountain builder button and the publishers call to action (both kept on phones).
 ---
 <a class="skip" href="#main">Skip to content</a>
 
@@ -12,8 +12,11 @@ import { asset } from '../../data/site';
       <span>Magic Mountain</span>
     </a>
     <nav aria-label="Sections">
-      <a href="#play">Play</a>
       <a href="#rules">How to play</a>
+      <a class="nav-build" href="#play">
+        <svg viewBox="-24 -24 48 48" width="1.272em" height="1.272em" fill="none" stroke="currentColor" stroke-width="3.6" stroke-linejoin="round" aria-hidden="true"><polygon points="20,0 10,17.3 -10,17.3 -20,0 -10,-17.3 10,-17.3"/><path d="M 0,-8 v 16 M -8,0 h 16" stroke-linecap="round"/></svg>
+        Build a mountain
+      </a>
       <a href="#table">Prototype</a>
       <a class="nav-cta" href="#publishers">For publishers</a>
     </nav>
@@ -51,9 +54,28 @@ import { asset } from '../../data/site';
     transition: background var(--t-fast) var(--ease);
   }
   nav .nav-cta:hover { color: #fff; background: var(--forest-hover); }
+  nav .nav-build {
+    display: inline-flex; align-items: center; gap: var(--s-2xs);
+    padding: var(--s-3xs) var(--s-s); border-radius: 999px; white-space: nowrap;
+    color: var(--ink); border: 1px solid var(--gold); background: rgb(243 227 198 / 0.45);
+    transition: background var(--t-fast) var(--ease), color var(--t-fast);
+  }
+  nav .nav-build svg { color: var(--gold); flex: none; }
+  .brand { flex: none; }
+  nav .nav-build:hover { color: var(--ink); background: var(--gold-soft); }
 
   @media (max-width: 44rem) {
-    nav a:not(:last-child) { display: none; }
+    nav a:not(.nav-cta, .nav-build) { display: none; }
+    nav { gap: var(--s-xs); }
     .brand { font-size: var(--step-0); }
+  }
+  @media (max-width: 27rem) {
+    .brand span { display: none; } /* the logo alone, so both buttons fit */
+  }
+  @media (max-width: 22rem) {
+    .header-inner { gap: var(--s-2xs); }
+    nav { gap: var(--s-2xs); }
+    nav .nav-build svg { display: none; }
+    nav .nav-build, nav .nav-cta { padding-inline: var(--s-xs); }
   }
 </style>

@@ -33,7 +33,8 @@
     --e2: #3f7e76;          /* teal frame — stream */
     --e3: #55697f;          /* blue frame — glacier */
     --e4: #8a97a6;          /* white frame, as drawn on the badge */
-    --e4-face: #f4f7f9;     /* the white frame itself */
+    --e4-face: #d9e8f4;     /* the white frame itself, tinted ice blue so it reads on the paper */
+    --e4-edge: #9dbbd3;     /* its outline */
     --gold: #c8842b;        /* summit */
     --gold-soft: #f3e3c6;
     --lava: #b5562f;        /* lava, used only for warnings */

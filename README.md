@@ -25,7 +25,10 @@ npm run preview    # serves dist/
 | Path | What it is |
 | --- | --- |
 | `src/pages/index.astro` | The page: every section, in order |
-| `src/components/MountainBuilder.astro` | The "build the mountain" board you can fill from the four bags |
+| `src/components/MountainBuilder.astro` | "Build your mountain": pick one of ours, one from players, shuffle or build your own frame by frame; fill it from the four bags; share it as a `#mountain=` link |
+| `src/components/sections/Gallery.astro` | "Mountains ready to climb": every ready-made mountain as a card; "Climb this one" opens it in the builder |
+| `src/scripts/board.ts` | Layouts, the fair START rule (same steps, elevations and Energy for every seat, as in the simulator) and the frame editor helpers |
+| `src/data/community.ts` | Mountains players sent in (name, builder, link code). Empty until the first one arrives |
 | `src/components/EnergyChart.astro` | Energy budget chart (rulebook §5) |
 | `src/data/game.ts` | All game numbers: tiles, gear, mountains, Golden Tickets, components. Change rules here |
 | `src/styles/global.css` | Design tokens: colours from the tiles, golden-ratio type and spacing |

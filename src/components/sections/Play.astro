@@ -1,18 +1,26 @@
 ---
-// "The board doesn't exist yet": the interactive mountain builder.
+// "Build your mountain": one of ours, one from players, or your own — the interactive mountain builder.
 import MountainBuilder from '../MountainBuilder.astro';
 ---
 <section class="section" id="play">
   <div class="wrap">
     <div class="section-head">
-      <h2>The board doesn’t exist yet</h2>
-      <p class="lede">
-        Every game starts with empty frames, laid out in any shape the table likes. Turn by turn, climbers draw
-        sculpted terrain tiles from four bags and clip them in, so every expedition climbs a mountain nobody has
-        seen before.
-      </p>
-      <p>Pick a mountain, or shuffle a new one from the frames in the box, then draw tiles from the bags.</p>
+      <p class="kicker">No printed board</p>
+      <h2>Build your mountain</h2>
+      <p class="lede">Every game, a new mountain. Lay out the frames, then fill them tile by tile as you climb.</p>
+      <p>The START tiles are placed so every seat gets the same climb to the Summit.</p>
     </div>
     <MountainBuilder />
   </div>
 </section>
+
+<style>
+  .kicker {
+    font-size: var(--step--1);
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: var(--s-2xs);
+  }
+</style>
