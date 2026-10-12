@@ -1,4 +1,5 @@
 ---
+import { asset } from '../../data/site';
 // Sticky header: logo, section links, and the publishers call to action (the one link kept on phones).
 ---
 <a class="skip" href="#main">Skip to content</a>
@@ -6,13 +7,8 @@
 <header class="site-header">
   <div class="wrap header-inner">
     <a class="brand" href="#top" aria-label="Magic Mountain, back to top">
-      <!-- logo mark: golden-ratio construction, see scripts/logo.py and Final Design/Logo -->
-      <svg viewBox="0 0 100 100" width="1.618em" height="1.618em" aria-hidden="true">
-        <polygon points="98.00,50.00 74.00,91.57 26.00,91.57 2.00,50.00 26.00,8.43 74.00,8.43" fill="var(--forest)" />
-        <polygon points="20.33,59.81 34.34,37.15 43.00,51.16 57.00,23.14 79.67,59.81" fill="var(--paper)" />
-        <polygon points="57.00,23.14 79.67,59.81 65.66,59.81" fill="#d6e1e8" />
-        <polygon points="60.31,14.49 58.66,17.35 55.35,17.35 53.70,14.49 55.35,11.62 58.66,11.62" fill="var(--gold)" />
-      </svg>
+      <!-- logo: Final Design/Logo/MagicMountain_Logo_final.svg -->
+      <img src={asset('logo.svg')} alt="" width="26" height="26" />
       <span>Magic Mountain</span>
     </a>
     <nav aria-label="Sections">
@@ -39,6 +35,7 @@
     border-bottom: 1px solid rgb(195 208 217 / 0.6);
   }
   .header-inner { display: flex; align-items: center; justify-content: space-between; gap: var(--s-m); min-height: 3.618rem; }
+  .brand img { width: 1.618em; height: 1.618em; }
   .brand {
     display: inline-flex; align-items: center; gap: var(--s-xs);
     font-family: var(--font-display); font-size: var(--step-1);
