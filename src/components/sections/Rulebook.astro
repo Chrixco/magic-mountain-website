@@ -1,0 +1,246 @@
+---
+// "Read the rulebook": the rulebook as a book whose pages turn. Pages are WebP renders of the rulebook PDF in
+// public/rulebook (page-01.webp …), made from Rulebook/Magic_Mountain_Rulebook_v2_beige-lines-trial.pdf.
+//
+// Technique: the pages are printed on leaves, two sides each (front = odd page, back = even page). Unturned leaves
+// stack on the right of the spine; a turned leaf has rotated 180° around the spine and lies on the left. Wide
+// screens show the open spread; phones show one page at a time by sliding the book under a one-page window.
+import { links } from '../../data/site';
+
+const PAGES = 26;
+const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
+const page = (n: number) => `${base}rulebook/page-${String(n).padStart(2, '0')}.webp`;
+const leaves = Array.from({ length: Math.ceil(PAGES / 2) }, (_, i) => ({ front: 2 * i + 1, back: 2 * i + 2 }));
+---
+<section class="section rulebook" id="rulebook">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Read the rulebook</h2>
+      <p>All {PAGES} pages, as printed. Turn them here, or take the PDF with you.</p>
+    </div>
+
+    <div class="stage" data-book data-pages={PAGES} tabindex="0" aria-roledescription="book" aria-label="Magic Mountain rulebook. Use the arrow keys to turn the pages.">
+      <div class="window">
+        <div class="book closed" data-book-body>
+          {leaves.map((l, i) => (
+            <div class="leaf" data-leaf={i} style={`--i:${i}; --n:${leaves.length}`}>
+              <div class="face front">
+                <img data-src={page(l.front)} src={l.front === 1 ? page(1) : undefined} alt={`Rulebook page ${l.front}`} width="1000" height="1295" decoding="async" draggable="false" />
+              </div>
+              <div class="face back">
+                {l.back <= PAGES && <img data-src={page(l.back)} alt={`Rulebook page ${l.back}`} width="1000" height="1295" decoding="async" draggable="false" />}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div class="controls">
+        <button type="button" class="button ghost turn" data-prev aria-label="Previous page" disabled>
+          <svg viewBox="0 0 24 24" width="1.2em" height="1.2em" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+        </button>
+        <button type="button" class="button open" data-open>Open the book</button>
+        <p class="where" data-where aria-live="polite">Cover</p>
+        <button type="button" class="button ghost turn" data-next aria-label="Next page">
+          <svg viewBox="0 0 24 24" width="1.2em" height="1.2em" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+      <div class="extras">
+        <button type="button" class="button ghost small" data-full hidden>
+          <svg viewBox="0 0 24 24" width="1.1em" height="1.1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
+          <span data-full-label>Full screen</span>
+        </button>
+        <a class="button ghost small" href={links.rulebook} download>
+          <svg viewBox="0 0 24 24" width="1.1em" height="1.1em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>
+          Download the PDF
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .rulebook { overflow-x: clip; } /* the closed book slides sideways; never widen the page */
+  .stage { display: grid; justify-items: center; gap: var(--s-s); outline: none; }
+  .stage:focus-visible .window { outline: 2px solid var(--forest); outline-offset: 6px; border-radius: var(--r-s); }
+
+  /* The window shows the open spread on wide screens, one page on phones */
+  .window { width: min(100%, 66rem, calc((100dvh - 12rem) * 2 * 0.7722)); } /* book and buttons fit on one screen */
+  .book {
+    --page-ratio: 0.7722; /* US Letter, 612 × 792 */
+    --shift: 0%;
+    position: relative; width: 100%; aspect-ratio: calc(2 * var(--page-ratio));
+    perspective: 3000px;
+    transform: translateX(var(--shift));
+    transition: transform 700ms var(--ease);
+  }
+  .book.closed { --shift: -25%; }  /* the cover sits in the middle until the book opens */
+  .book.ended { --shift: 25%; }    /* and the last page, once every leaf is turned */
+
+  .leaf {
+    position: absolute; top: 0; left: 50%; width: 50%; height: 100%;
+    transform-origin: left center; transform-style: preserve-3d;
+    transition: transform 900ms cubic-bezier(.45, .05, .25, 1);
+    z-index: calc(var(--n) - var(--i));
+    cursor: pointer;
+  }
+  .leaf.turned { transform: rotateY(-180deg); z-index: var(--i); }
+  .leaf.moving { z-index: 100; }
+  .face {
+    position: absolute; inset: 0; overflow: hidden;
+    backface-visibility: hidden; -webkit-backface-visibility: hidden;
+    background: #f3e8d4;
+    box-shadow: 0 0.618rem 1.618rem -0.618rem rgb(34 48 60 / 0.35);
+  }
+  .face img { display: block; width: 100%; height: 100%; object-fit: cover; user-select: none; -webkit-user-select: none; }
+  .front { border-radius: 0 4px 4px 0; }
+  .back { transform: rotateY(180deg); border-radius: 4px 0 0 4px; }
+  /* the paper curves into the spine */
+  .front::after, .back::after { content: ''; position: absolute; inset: 0; pointer-events: none; }
+  .front::after { background: linear-gradient(to right, rgb(60 40 20 / 0.22), rgb(60 40 20 / 0.06) 4%, transparent 9%); }
+  .back::after { background: linear-gradient(to left, rgb(60 40 20 / 0.22), rgb(60 40 20 / 0.06) 4%, transparent 9%); }
+  /* a closed book has a cover's edge and weight */
+  .book.closed .leaf:first-child .front { box-shadow: 0.236rem 0.382rem 0 -0.05rem #e6d6b8, 0.382rem 0.618rem 0 -0.1rem #d9c6a3, 0 1rem 2.618rem -0.618rem rgb(34 48 60 / 0.45); }
+  .book.closed .leaf:first-child:hover { transform: rotateY(-8deg); }
+
+  .controls { display: flex; align-items: center; gap: var(--s-xs); }
+  .turn { width: 2.618rem; padding: 0; justify-content: center; }
+  .where { min-width: 9.5em; margin: 0; text-align: center; font-variant-numeric: tabular-nums; font-size: var(--step--1); color: var(--ink-soft); }
+  .open[hidden], .where[hidden] { display: none; }
+  .extras { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--s-xs); }
+  .button.small { min-height: 2.236rem; padding: var(--s-3xs) var(--s-s); font-size: var(--step--1); }
+  .extras [hidden] { display: none; }
+
+  /* Phones: a one-page window; the book slides under it to show the left or the right page */
+  @media (max-width: 40rem) {
+    .window { width: min(100%, 26rem); overflow: hidden; border-radius: 4px; }
+    .book { width: 200%; }
+    .book, .book.closed, .book.ended { --shift: var(--slide, -50%); }
+  }
+
+  /* Full screen: the book as large as the screen allows, on paper */
+  .stage:fullscreen { background: var(--paper); align-content: center; padding: var(--s-m); }
+  .stage:fullscreen .window { width: min(100%, calc((100dvh - 9rem) * 2 * 0.7722)); }
+  @media (max-width: 40rem) {
+    .stage:fullscreen .window { width: min(100%, calc((100dvh - 9rem) * 0.7722)); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .book, .leaf { transition: none; }
+  }
+</style>
+
+<script>
+  for (const stage of document.querySelectorAll<HTMLElement>('[data-book]')) {
+    const PAGES = Number(stage.dataset.pages);
+    const book = stage.querySelector<HTMLElement>('[data-book-body]')!;
+    const view = stage.querySelector<HTMLElement>('.window')!;
+    const leaves = [...stage.querySelectorAll<HTMLElement>('[data-leaf]')];
+    const prev = stage.querySelector<HTMLButtonElement>('[data-prev]')!;
+    const next = stage.querySelector<HTMLButtonElement>('[data-next]')!;
+    const open = stage.querySelector<HTMLButtonElement>('[data-open]')!;
+    const where = stage.querySelector<HTMLElement>('[data-where]')!;
+    const full = stage.querySelector<HTMLButtonElement>('[data-full]')!;
+    const narrow = matchMedia('(max-width: 40rem)');
+    const TURN = 900;
+
+    // State: `turned` leaves lie on the left. On phones, `page` is the one page in the window.
+    let turned = 0;
+    let page = 1;
+    where.hidden = true;
+
+    // Load the pictures of the pages around the current one (and the next few), nothing more.
+    const load = (around: number) => {
+      for (const img of stage.querySelectorAll<HTMLImageElement>('img[data-src]')) {
+        const n = Number(img.alt.match(/\d+$/)![0]);
+        if (!img.getAttribute('src') && Math.abs(n - around) <= 4) img.src = img.dataset.src!;
+      }
+    };
+
+    function render() {
+      leaves.forEach((leaf, i) => leaf.classList.toggle('turned', i < turned));
+      book.classList.toggle('closed', turned === 0);
+      book.classList.toggle('ended', turned === leaves.length);
+      // Phones: slide to the left page (even) or the right page (odd)
+      book.style.setProperty('--slide', page % 2 === 0 ? '0%' : '-50%');
+      const opened = turned > 0 || page > 1;
+      open.hidden = opened;
+      where.hidden = !opened;
+      if (narrow.matches) where.textContent = `Page ${page} of ${PAGES}`;
+      else if (turned === 0) where.textContent = 'Cover';
+      else if (turned === leaves.length || 2 * turned + 1 > PAGES) where.textContent = `Page ${2 * turned} of ${PAGES}`;
+      else where.textContent = `Pages ${2 * turned}–${2 * turned + 1} of ${PAGES}`;
+      prev.disabled = narrow.matches ? page === 1 : turned === 0;
+      next.disabled = narrow.matches ? page === PAGES : turned === leaves.length;
+      load(narrow.matches ? page : 2 * turned + 1);
+    }
+
+    /** Turn one leaf forward (+1) or back (-1), lifting it above the others while it moves. */
+    function turn(dir: 1 | -1) {
+      const i = dir === 1 ? turned : turned - 1;
+      const leaf = leaves[i];
+      if (!leaf) return;
+      leaf.classList.add('moving');
+      setTimeout(() => leaf.classList.remove('moving'), TURN);
+      turned += dir;
+    }
+
+    function go(dir: 1 | -1) {
+      if (narrow.matches) {
+        const target = page + dir;
+        if (target < 1 || target > PAGES) return;
+        // From a right page (odd) forward, or from a left page (even) back, a leaf turns; otherwise the book slides.
+        if (dir === 1 && page % 2 === 1) turn(1);
+        if (dir === -1 && page % 2 === 0) turn(-1);
+        page = target;
+      } else {
+        if (dir === 1 && turned === leaves.length) return;
+        if (dir === -1 && turned === 0) return;
+        turn(dir);
+        page = turned === 0 ? 1 : 2 * turned;
+      }
+      render();
+    }
+
+    next.addEventListener('click', () => go(1));
+    prev.addEventListener('click', () => go(-1));
+    open.addEventListener('click', () => go(1));
+    // Click the right-hand page to go on, the left-hand page to go back (on phones: the right or left half of the page)
+    book.addEventListener('click', (e) => {
+      const r = (narrow.matches ? view : book).getBoundingClientRect();
+      go((e.clientX - r.left) / r.width >= 0.5 ? 1 : -1);
+    });
+    stage.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight') { e.preventDefault(); go(1); }
+      if (e.key === 'ArrowLeft') { e.preventDefault(); go(-1); }
+    });
+    // Swipe on touch screens
+    let x0: number | null = null;
+    book.addEventListener('touchstart', (e) => { x0 = e.touches[0].clientX; }, { passive: true });
+    book.addEventListener('touchend', (e) => {
+      if (x0 === null) return;
+      const dx = e.changedTouches[0].clientX - x0;
+      x0 = null;
+      if (Math.abs(dx) > 40) { e.preventDefault(); go(dx < 0 ? 1 : -1); }
+    });
+
+    // Switching between spread and single page keeps the place in the book
+    narrow.addEventListener('change', () => {
+      if (narrow.matches) page = turned === 0 ? 1 : 2 * turned;
+      else turned = Math.floor(page / 2);
+      render();
+    });
+
+    // Full screen, where the browser allows it
+    if (stage.requestFullscreen) {
+      full.hidden = false;
+      full.addEventListener('click', () => (document.fullscreenElement ? document.exitFullscreen() : stage.requestFullscreen()));
+      document.addEventListener('fullscreenchange', () => {
+        stage.querySelector('[data-full-label]')!.textContent = document.fullscreenElement === stage ? 'Exit full screen' : 'Full screen';
+        if (document.fullscreenElement === stage) stage.focus();
+      });
+    }
+
+    render();
+  }
+</script>

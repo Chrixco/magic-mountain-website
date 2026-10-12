@@ -9,6 +9,7 @@ import Hero from '../components/sections/Hero.astro';
 import Play from '../components/sections/Play.astro';
 import Gallery from '../components/sections/Gallery.astro';
 import Rules from '../components/sections/Rules.astro';
+import Rulebook from '../components/sections/Rulebook.astro';
 import Elevations from '../components/sections/Elevations.astro';
 import GoldenTickets from '../components/sections/GoldenTickets.astro';
 import Round from '../components/sections/Round.astro';
@@ -34,6 +35,7 @@ const socialImage = await getImage({ src: cover, width: 1200, height: 630, fit: 
   <main id="main">
     <Hero />           <!-- title and the living map -->
     <Rules />          <!-- how to play: setup, your turn, moving, winning -->
+    <Rulebook />       <!-- the rulebook as a book whose pages turn -->
     <Elevations />     <!-- four elevations and their tiles -->
     <GoldenTickets />  <!-- holo tickets at the viewpoints -->
     <Round />          <!-- one round, one day; Day cards -->
