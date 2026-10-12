@@ -73,11 +73,12 @@ const invite = `mailto:${contact.email}?subject=${encodeURIComponent('A mountain
         {Object.values(counts).reduce((a, b) => a + b, 0)} of 14 frames · {SUMMIT_NAME[top]} Summit
       </p>
       <p class="fair" data-fair>{describeStart(start)}</p>
-      <p class="share" data-share>
-        <button type="button" class="link" data-copy>Copy link</button>
-        <a class="link" data-send href={invite}>Send it to us</a>
+      <div class="share actions" data-share>
+        <button type="button" class="button ghost share-btn" data-print><svg class="icon" viewBox="0 0 24 24" width="1.15em" height="1.15em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 9V3h10v6"/><rect x="3" y="9" width="18" height="8" rx="2"/><path d="M7 14h10v7H7z"/></svg>Print</button>
+        <button type="button" class="button ghost share-btn" data-copy><svg class="icon" viewBox="0 0 24 24" width="1.15em" height="1.15em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.1 0l3-3a5 5 0 0 0-7.1-7.1l-1.2 1.2"/><path d="M14 11a5 5 0 0 0-7.1 0l-3 3a5 5 0 0 0 7.1 7.1l1.2-1.2"/></svg>Copy link</button>
+        <a class="button ghost share-btn" data-send href={invite}><svg class="icon" viewBox="0 0 24 24" width="1.15em" height="1.15em" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3.5 6.5 8.5 6 8.5-6"/></svg>Send it to us</a>
         <span class="copied" data-copied aria-live="polite"></span>
-      </p>
+      </div>
     </div>
     <div class="editor" data-editor hidden>
       <p class="muted" data-hint>Pick a colour, then tap <strong>+</strong> to add a frame. Tap a frame to recolour it, again to remove it.</p>
@@ -146,10 +147,11 @@ const invite = `mailto:${contact.email}?subject=${encodeURIComponent('A mountain
     font-size: var(--step--1); font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;
     color: var(--ink-soft);
   }
+  /* Phones: the label on its own line, the choices wrap under it (nothing hides off the edge) */
   @media (max-width: 40rem) {
-    .source { flex-wrap: nowrap; overflow-x: auto; margin-inline: calc(-1 * var(--gutter)); padding: var(--s-3xs) var(--gutter); scrollbar-width: none; }
-    .source-label { min-width: 0; flex: none; }
-    .pick { flex: none; }
+    .picker { gap: var(--s-s); }
+    .source-label { flex-basis: 100%; min-width: 0; }
+    .pick { min-height: 2.618rem; }
   }
   .pick {
     display: inline-flex; align-items: center; gap: var(--s-2xs);
@@ -226,10 +228,11 @@ const invite = `mailto:${contact.email}?subject=${encodeURIComponent('A mountain
   .about .frames-used { font-size: var(--step--1); }
   .about .fair { font-size: var(--step--1); color: #2f5ea8; font-weight: 600; }
   .about .fair.uneven { color: var(--lava); }
-  .share { display: flex; flex-wrap: wrap; gap: var(--s-2xs) var(--s-s); align-items: baseline; font-size: var(--step--1); }
-  .link { padding: 0; border: 0; background: none; font: inherit; font-weight: 600; color: var(--forest); text-decoration: underline; text-underline-offset: 0.2em; cursor: pointer; }
-  .link:hover { color: var(--forest-hover); }
-  .copied { color: var(--ink-soft); }
+  /* Print, copy, send: outlined call-to-action buttons under the mountain's details */
+  .share { margin-top: var(--s-s); gap: var(--s-xs); align-items: center; }
+  .share-btn { padding-inline: var(--s-s); font-size: var(--step--1); background: rgb(255 255 255 / 0.6); }
+  .copied { flex-basis: 100%; font-size: var(--step--1); color: var(--ink-soft); overflow-wrap: anywhere; }
+  .copied:empty { display: none; }
 
   .editor { display: grid; gap: var(--s-s); }
   .swatch[aria-checked='true'] { background: var(--glass-hover-fill); box-shadow: var(--glass-shadow), inset 0 0 0 2px var(--c); }
@@ -727,11 +730,59 @@ const invite = `mailto:${contact.email}?subject=${encodeURIComponent('A mountain
       press('build');
     });
 
+    // ---------- Print ----------
+    // One landscape page: the mountain as it is on screen (empty frames or drawn tiles), what it is, how fair the
+    // seats are, the colour key and the link to rebuild it. The page itself is hidden while it prints (global.css).
+    const PRICES: [Elev, string][] = [[1, 'Green'], [2, 'Teal'], [3, 'Blue'], [4, 'White']];
+    function printSheet() {
+      const sheet = document.createElement('div');
+      sheet.className = 'print-sheet';
+      const board = svg.cloneNode(true) as SVGSVGElement;
+      board.querySelector('[data-ghosts]')?.remove(); // no empty "+" spots on paper
+      board.removeAttribute('aria-labelledby');
+      board.setAttribute('class', 'print-board');
+      const text = (sel: string) => $<HTMLElement>(sel).textContent?.trim() ?? '';
+      const url = editing ? shareUrl(draft, draftSummit) : shareUrl(framesOf(current), summitOf());
+      const name = editing ? 'Your mountain' : current.name;
+      const key = PRICES.filter(([e]) => slots.some((s) => s.e === e))
+        .map(([e, label]) => `<li><span class="print-swatch e${e}"></span>${label} · Elevation ${e} · ${COST[e]} Energy a step</li>`).join('');
+      sheet.innerHTML = `
+        <header class="print-head">
+          <p class="print-kicker">Magic Mountain: Reach for the Peak</p>
+          <h1>${name}</h1>
+          <p>${text('[data-frames-used]')}</p>
+        </header>
+        <div class="print-body"></div>
+        <footer class="print-foot">
+          <ul class="print-key">${key}<li><span class="print-swatch summit"></span>Summit</li><li><span class="print-swatch start"></span>START tiles</li></ul>
+          <p class="print-fair">${text('[data-fair]')}</p>
+          <p class="print-link">Rebuild it on screen: ${url}</p>
+        </footer>`;
+      sheet.querySelector('.print-body')!.append(board);
+      (sheet.querySelector('.print-link') as HTMLElement).textContent = `Rebuild it on screen: ${url}`; // plain text, never markup
+      document.body.append(sheet);
+      document.documentElement.classList.add('printing-mountain');
+      const done = () => {
+        sheet.remove();
+        document.documentElement.classList.remove('printing-mountain');
+        removeEventListener('afterprint', done);
+      };
+      addEventListener('afterprint', done);
+      // Print once the tile pictures in the copy have loaded, so none come out blank.
+      const pics = [...board.querySelectorAll('image')].map((img) => new Promise<void>((ok) => {
+        const probe = new Image();
+        probe.onload = probe.onerror = () => ok();
+        probe.src = img.getAttribute('href') ?? '';
+      }));
+      Promise.race([Promise.all(pics), new Promise((ok) => setTimeout(ok, 3000))]).then(() => print());
+    }
+    $<HTMLButtonElement>('[data-print]').addEventListener('click', printSheet);
+
     $<HTMLButtonElement>('[data-copy]').addEventListener('click', async () => {
       const url = editing ? shareUrl(draft, draftSummit) : shareUrl(framesOf(current), summitOf());
       try {
         await navigator.clipboard.writeText(url);
-        copied.textContent = 'Copied.';
+        copied.textContent = 'Link copied.';
       } catch {
         copied.textContent = url; // copy it by hand
       }
